@@ -1,0 +1,108 @@
+{
+  "projectType": "general",
+  "projectName": "Mindect",
+  "projectDescription": "A comprehensive learning platform for AI, ML, Deep Learning, and Mathematics with interactive educational content.",
+  "theme": "almond",
+  "primaryColor": "#22bdd5",
+  "lightColor": "#553483",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "jupyter-notebook"
+            ]
+          },
+          {
+            "group": "Supervised Learning",
+            "pages": [
+              "supervised-learning/overview",
+              "supervised-learning/regression-model",
+              "supervised-learning/gradient-descent",
+              "supervised-learning/multiple-linear-regression",
+              "supervised-learning/logistic-regression",
+              "supervised-learning/overfitting"
+            ]
+          },
+          {
+            "group": "Unsupervised Learning",
+            "pages": [
+              "unsupervised-learning/overview",
+              "unsupervised-learning/clustering",
+              "unsupervised-learning/anomaly-detection"
+            ]
+          },
+          {
+            "group": "Advanced Learning Algorithms",
+            "pages": [
+              "advanced-algorithms/overview",
+              "advanced-algorithms/neural-networks",
+              "advanced-algorithms/tensorflow-implementation",
+              "advanced-algorithms/vectorization",
+              "advanced-algorithms/neural-network-training"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Mathematics",
+        "groups": [
+          {
+            "group": "Linear Algebra",
+            "pages": [
+              "mathematics/algebra/overview",
+              "mathematics/algebra/numpy-arrays",
+              "mathematics/algebra/linear-systems",
+              "mathematics/algebra/matrix-operations",
+              "mathematics/algebra/linear-transformations",
+              "mathematics/algebra/eigenvalues-eigenvectors"
+            ]
+          },
+          {
+            "group": "Calculus",
+            "pages": [
+              "mathematics/calculus/overview",
+              "mathematics/calculus/differentiation",
+              "mathematics/calculus/gradient-descent-optimization",
+              "mathematics/calculus/perceptron-regression",
+              "mathematics/calculus/perceptron-classification"
+            ]
+          },
+          {
+            "group": "Probability & Statistics",
+            "pages": [
+              "mathematics/probability/overview",
+              "mathematics/probability/exploratory-data-analysis",
+              "mathematics/probability/data-visualization",
+              "mathematics/probability/statistical-problems"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Interactive learning content for Machine Learning and AI",
+    "Jupyter Notebook integration for hands-on coding",
+    "Comprehensive coverage of Supervised and Unsupervised Learning",
+    "Neural Networks and Deep Learning tutorials",
+    "Mathematics fundamentals: Linear Algebra, Calculus, and Probability",
+    "Real-world examples and practical applications",
+    "Beginner-friendly with progressive difficulty levels"
+  ],
+  "publicApiSurface": [
+    "Supervised Learning tutorials (Regression, Classification, Gradient Descent)",
+    "Unsupervised Learning content (Clustering, Anomaly Detection)",
+    "Advanced Learning Algorithms (Neural Networks, TensorFlow)",
+    "Linear Algebra lessons (NumPy, Matrices, Eigenvalues)",
+    "Calculus tutorials (Differentiation, Optimization, Perceptron)",
+    "Probability & Statistics (EDA, Data Visualization, Statistical Testing)",
+    "Jupyter Notebook setup and usage guides"
+  ]
+}
