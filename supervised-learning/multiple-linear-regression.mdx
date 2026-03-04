@@ -1,0 +1,369 @@
+---
+title: Multiple Linear Regression
+description: Extend linear regression to use multiple features for more powerful and accurate predictions.
+---
+
+## Introduction
+
+In the original version of linear regression, you had a single feature **x** (like house size) to predict **y** (house price). But what if you had multiple features? This would give you much more information to make accurate predictions.
+
+**Multiple linear regression** uses multiple input features to predict the output, making your model more powerful and flexible.
+
+## Motivating Example: Housing Prices
+
+Originally, you had:
+- **Single feature**: Size of house (x)
+- **Model**: f(x) = w * x + b
+
+But now you have more information:
+
+| Size (sq ft) | Bedrooms | Floors | Age (years) | Price ($1000s) |
+|--------------|----------|--------|-------------|----------------|
+| 2104         | 5        | 1      | 45          | 460            |
+| 1416         | 3        | 2      | 40          | 232            |
+| 1534         | 3        | 2      | 30          | 315            |
+| 852          | 2        | 1      | 36          | 178            |
+
+<Info>
+With multiple features, you can capture more complex relationships. For example, the number of bedrooms, age of the house, and number of floors all influence the price.
+</Info>
+
+## Notation for Multiple Features
+
+<Tabs>
+  <Tab title="Features">
+    **x₁, x₂, x₃, x₄** = individual features
+    
+    - x₁ = size in sq ft
+    - x₂ = number of bedrooms  
+    - x₃ = number of floors
+    - x₄ = age in years
+  </Tab>
+  
+  <Tab title="Number of Features">
+    **n** = total number of features
+    
+    In this example: n = 4
+  </Tab>
+  
+  <Tab title="Feature Vector">
+    **x⁽ⁱ⁾** = feature vector for i-th training example
+    
+    x⁽²⁾ = [1416, 3, 2, 40] (second house's features)
+  </Tab>
+  
+  <Tab title="Specific Feature">
+    **xⱼ⁽ⁱ⁾** = value of feature j in training example i
+    
+    x₃⁽²⁾ = 2 (number of floors in second house)
+  </Tab>
+</Tabs>
+
+<Note>
+The superscript (i) refers to the training example number, NOT exponentiation. The subscript j refers to the feature number.
+</Note>
+
+## Model for Multiple Linear Regression
+
+### Expanded Form
+
+With 4 features, the model becomes:
+
+```python
+f(x) = w₁*x₁ + w₂*x₂ + w₃*x₃ + w₄*x₄ + b
+```
+
+Each feature has its own parameter (weight) that the model learns.
+
+### Interpretation Example
+
+Suppose the model learns these parameters:
+
+```python
+f(x) = 0.1*x₁ + 4*x₂ + 10*x₃ - 2*x₄ + 80
+```
+
+This means (if price is in $1000s):
+- **Base price**: $80,000 (the constant b = 80)
+- **Size**: +$100 per square foot (0.1 × $1000)
+- **Bedrooms**: +$4,000 per bedroom (4 × $1000)
+- **Floors**: +$10,000 per floor (10 × $1000)  
+- **Age**: -$2,000 per year of age (-2 × $1000, negative because older houses are cheaper)
+
+<Tip>
+The weights tell you how much each feature contributes to the prediction. Larger absolute values mean that feature has more impact.
+</Tip>
+
+### General Form with n Features
+
+For any number of features:
+
+```python
+f(x) = w₁*x₁ + w₂*x₂ + ... + wₙ*xₙ + b
+```
+
+## Vector Notation
+
+To make the notation more compact, we use vectors:
+
+<Accordion title="Parameter Vector (w)">
+**w** = [w₁, w₂, w₃, ..., wₙ]
+
+A vector containing all the weights. The arrow notation (→) sometimes indicates it's a vector.
+</Accordion>
+
+<Accordion title="Feature Vector (x)">
+**x** = [x₁, x₂, x₃, ..., xₙ]
+
+A vector containing all the features for one training example.
+</Accordion>
+
+### Dot Product Representation
+
+Using vectors, the model becomes:
+
+```python
+f(x) = w · x + b
+```
+
+Where **w · x** is the **dot product** of vectors w and x:
+
+```python
+w · x = w₁*x₁ + w₂*x₂ + w₃*x₃ + ... + wₙ*xₙ
+```
+
+<Info>
+The dot product notation makes the model expression much more compact and easier to work with, especially when you have many features.
+</Info>
+
+## Vectorization: Making Code Fast
+
+Vectorization is a technique that makes your code shorter and **much faster**.
+
+### Without Vectorization (Slow)
+
+```python
+# Manual calculation - inefficient
+w = np.array([0.1, 4, 10, -2])
+x = np.array([2104, 5, 1, 45])
+b = 80
+
+f = w[0] * x[0] + w[1] * x[1] + w[2] * x[2] + w[3] * x[3] + b
+print(f"f = {f}")  # Prediction
+```
+
+### With Loop (Better, but still slow)
+
+```python
+# Using a for loop
+f = 0
+for j in range(len(w)):
+    f += w[j] * x[j]
+f += b
+print(f"f = {f}")
+```
+
+### With Vectorization (Best!) ⚡
+
+```python
+import numpy as np
+
+w = np.array([0.1, 4, 10, -2])
+x = np.array([2104, 5, 1, 45])
+b = 80
+
+# One line of code!
+f = np.dot(w, x) + b
+print(f"f = {f}")
+```
+
+<Card title="Why Vectorization is Faster" icon="bolt">
+Behind the scenes, NumPy uses:
+- **Parallel hardware** (CPU or GPU)
+- **Optimized C/Fortran libraries**
+- **SIMD instructions** (Single Instruction, Multiple Data)
+
+This makes vectorized code **10x to 100x faster** than loops for large datasets!
+</Card>
+
+## Implementing Multiple Linear Regression
+
+```python
+import numpy as np
+
+def predict(x, w, b):
+    """
+    Predict using multiple linear regression
+    
+    Args:
+        x: Feature vector [x1, x2, ..., xn]
+        w: Weight vector [w1, w2, ..., wn]
+        b: Bias parameter
+    
+    Returns:
+        prediction: Predicted value
+    """
+    return np.dot(w, x) + b
+
+def compute_cost(X, y, w, b):
+    """
+    Compute cost for multiple linear regression
+    
+    Args:
+        X: Training examples (m x n matrix)
+        y: Target values (m-length vector)
+        w: Weight vector (n-length)
+        b: Bias parameter
+    
+    Returns:
+        cost: Cost J(w, b)
+    """
+    m = len(y)  # Number of training examples
+    total_cost = 0
+    
+    for i in range(m):
+        f_wb = np.dot(w, X[i]) + b
+        cost = (f_wb - y[i]) ** 2
+        total_cost += cost
+    
+    return total_cost / (2 * m)
+
+def gradient_descent_multi(X, y, w_init, b_init, alpha, num_iters):
+    """
+    Gradient descent for multiple linear regression
+    
+    Args:
+        X: Training examples (m x n matrix)
+        y: Target values
+        w_init: Initial weights
+        b_init: Initial bias
+        alpha: Learning rate
+        num_iters: Number of iterations
+    
+    Returns:
+        w, b: Optimized parameters
+    """
+    w = w_init
+    b = b_init
+    m = len(y)
+    n = len(w)
+    
+    for iteration in range(num_iters):
+        # Compute gradients
+        dj_dw = np.zeros(n)
+        dj_db = 0
+        
+        for i in range(m):
+            err = np.dot(w, X[i]) + b - y[i]
+            
+            for j in range(n):
+                dj_dw[j] += err * X[i][j]
+            
+            dj_db += err
+        
+        # Average the gradients
+        dj_dw = dj_dw / m
+        dj_db = dj_db / m
+        
+        # Update parameters simultaneously
+        w = w - alpha * dj_dw
+        b = b - alpha * dj_db
+        
+        # Print progress
+        if iteration % 100 == 0:
+            cost = compute_cost(X, y, w, b)
+            print(f"Iteration {iteration}: Cost {cost:.2f}")
+    
+    return w, b
+
+# Example usage
+X_train = np.array([
+    [2104, 5, 1, 45],
+    [1416, 3, 2, 40],
+    [1534, 3, 2, 30],
+    [852, 2, 1, 36]
+])
+
+y_train = np.array([460, 232, 315, 178])
+
+# Initialize parameters
+w_init = np.zeros(4)
+b_init = 0
+alpha = 5.0e-7  # Small learning rate for multiple features
+iterations = 1000
+
+# Train the model
+w_final, b_final = gradient_descent_multi(X_train, y_train, w_init, b_init, alpha, iterations)
+
+print(f"\nFinal parameters:")
+print(f"w = {w_final}")
+print(f"b = {b_final}")
+
+# Make a prediction
+house = np.array([1500, 3, 2, 20])  # 1500 sq ft, 3 bed, 2 floor, 20 years old
+prediction = predict(house, w_final, b_final)
+print(f"\nPredicted price: ${prediction:.2f}k")
+```
+
+## Gradient Descent for Multiple Features
+
+The gradient descent update rules extend naturally:
+
+```python
+# Update each weight
+for j in range(n):
+    wⱼ = wⱼ - α * ∂J/∂wⱼ
+
+# Update bias
+b = b - α * ∂J/∂b
+```
+
+Where the derivatives are:
+
+```python
+∂J/∂wⱼ = (1/m) * Σ(f(x⁽ⁱ⁾) - y⁽ⁱ⁾) * xⱼ⁽ⁱ⁾
+∂J/∂b = (1/m) * Σ(f(x⁽ⁱ⁾) - y⁽ⁱ⁾)
+```
+
+## Key Takeaways
+
+<Steps>
+  <Step title="Multiple features improve predictions">
+    Using more relevant features generally leads to more accurate models
+  </Step>
+  
+  <Step title="Vector notation simplifies equations">
+    The dot product f(x) = w·x + b is compact and elegant
+  </Step>
+  
+  <Step title="Vectorization accelerates computation">
+    NumPy's vectorized operations are much faster than explicit loops
+  </Step>
+  
+  <Step title="Same gradient descent algorithm applies">
+    The algorithm structure is the same, just extended to multiple parameters
+  </Step>
+</Steps>
+
+## Practical Considerations
+
+<Accordion title="Feature Scaling">
+When features have very different ranges (e.g., size: 100-5000, bedrooms: 1-5), gradient descent can be slow. **Feature scaling** normalizes features to similar ranges, speeding up convergence.
+</Accordion>
+
+<Accordion title="Learning Rate Selection">
+With multiple features, you may need a smaller learning rate than with one feature. If cost increases instead of decreases, try reducing α.
+</Accordion>
+
+<Accordion title="Feature Engineering">
+You can create new features by combining existing ones. For example, x₅ = x₁ * x₂ (size × bedrooms) might capture useful information.
+</Accordion>
+
+## What's Next
+
+Now that you understand multiple linear regression, explore:
+
+- **Feature scaling** techniques to speed up gradient descent
+- **Feature engineering** to create more powerful features
+- **Polynomial regression** for capturing non-linear relationships
+- **Regularization** to prevent overfitting with many features

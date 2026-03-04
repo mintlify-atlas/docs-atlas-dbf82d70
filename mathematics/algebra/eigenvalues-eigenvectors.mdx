@@ -1,0 +1,468 @@
+---
+title: Eigenvalues and Eigenvectors
+description: Understand eigenvalues and eigenvectors - special vectors that reveal fundamental properties of linear transformations and matrices.
+---
+
+## Introduction
+
+Eigenvalues and eigenvectors are among the most important concepts in linear algebra. They reveal fundamental properties of matrices and linear transformations, with applications ranging from principal component analysis (PCA) to quantum mechanics.
+
+<Info>
+An **eigenvector** of a matrix is a non-zero vector that only changes by a scalar factor when the matrix is applied. That scalar factor is the corresponding **eigenvalue**.
+</Info>
+
+## Setup
+
+Import required packages:
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+import utils  # Custom plotting utilities
+```
+
+## Definition and Intuition
+
+### Mathematical Definition
+
+For a square matrix $A$, a non-zero vector $v$ is an **eigenvector** if:
+
+$$
+Av = \lambda v
+$$
+
+where $\lambda$ is a scalar called the **eigenvalue**.
+
+**Key Insight**: The transformation $A$ only scales $v$, without changing its direction.
+
+### Multiple Eigenvectors
+
+If $v$ is an eigenvector with eigenvalue $\lambda$, then any scalar multiple $kv$ (where $k \neq 0$) is also an eigenvector:
+
+$$
+A(kv) = k(Av) = k\lambda v = \lambda(kv)
+$$
+
+<Note>
+For each eigenvalue, infinitely many eigenvectors exist (all pointing along the same line). By convention, we typically choose the eigenvector with norm 1 (unit eigenvector).
+</Note>
+
+### Visual Example
+
+Consider a transformation defined by:
+
+$$
+A = \begin{bmatrix}2 & 3 \\ 2 & 1\end{bmatrix}
+$$
+
+Apply this to standard basis vectors:
+
+```python
+A = np.array([[2, 3], [2, 1]])
+e1 = np.array([[1], [0]])
+e2 = np.array([[0], [1]])
+
+# Visualize transformation
+utils.plot_transformation(A, e1, e2, vector_name='e')
+```
+
+Both $e_1$ and $e_2$ change direction and length. But what if we could find vectors that only change length?
+
+## Computing Eigenvalues and Eigenvectors
+
+### Using NumPy
+
+NumPy provides `np.linalg.eig()` to compute eigenvalues and eigenvectors:
+
+```python
+A = np.array([[2, 3], [2, 1]])
+A_eig = np.linalg.eig(A)
+
+print(f"Matrix A:\n{A}")
+print(f"\nEigenvalues:\n{A_eig[0]}")
+print(f"\nEigenvectors:\n{A_eig[1]}")
+```
+
+**Output structure:**
+- `A_eig[0]`: Array of eigenvalues
+- `A_eig[1]`: Matrix where each column is an eigenvector
+
+<Tip>
+Access individual eigenvectors using:
+- First eigenvector: `A_eig[1][:, 0]`
+- Second eigenvector: `A_eig[1][:, 1]`
+</Tip>
+
+### Visualizing Eigenvectors
+
+```python
+# Extract eigenvectors
+v1 = A_eig[1][:, 0]
+v2 = A_eig[1][:, 1]
+
+# Visualize transformation on eigenvectors
+utils.plot_transformation(A, v1, v2)
+```
+
+You'll observe:
+- $v_1$ is stretched by factor of 4 (eigenvalue $\lambda_1 = 4$)
+- $v_2$ reverses direction, equivalent to scaling by -1 (eigenvalue $\lambda_2 = -1$)
+
+<Info>
+Both eigenvectors remain parallel to their original directions after transformation - this is the defining property of eigenvectors.
+</Info>
+
+## Standard Transformations
+
+### Example 1: Reflection about Y-axis
+
+```python
+# Define reflection matrix
+A_reflection_yaxis = np.array([[-1, 0], [0, 1]])
+
+# Find eigenvalues and eigenvectors
+A_reflection_yaxis_eig = np.linalg.eig(A_reflection_yaxis)
+
+print(f"Matrix A:\n{A_reflection_yaxis}")
+print(f"\nEigenvalues:\n{A_reflection_yaxis_eig[0]}")
+print(f"\nEigenvectors:\n{A_reflection_yaxis_eig[1]}")
+
+# Visualize
+utils.plot_transformation(
+    A_reflection_yaxis, 
+    A_reflection_yaxis_eig[1][:, 0],
+    A_reflection_yaxis_eig[1][:, 1]
+)
+```
+
+**Interpretation:**
+- Eigenvalue $\lambda_1 = -1$: Eigenvector along x-axis (reversed)
+- Eigenvalue $\lambda_2 = 1$: Eigenvector along y-axis (unchanged)
+
+### Example 2: Shear Transformation
+
+A **shear transformation** displaces points proportionally to their distance from a line:
+
+$$
+A_{\text{shear\_x}} = \begin{bmatrix}1 & 0.5 \\ 0 & 1\end{bmatrix}
+$$
+
+```python
+# Define shear matrix
+A_shear_x = np.array([[1, 0.5], [0, 1]])
+
+# Find eigenvalues and eigenvectors
+A_shear_x_eig = np.linalg.eig(A_shear_x)
+
+print(f"Matrix A_shear_x:\n{A_shear_x}")
+print(f"\nEigenvalues:\n{A_shear_x_eig[0]}")
+print(f"\nEigenvectors:\n{A_shear_x_eig[1]}")
+
+# Visualize
+utils.plot_transformation(
+    A_shear_x,
+    A_shear_x_eig[1][:, 0],
+    A_shear_x_eig[1][:, 1]
+)
+```
+
+<Warning>
+The shear transformation has **complex eigenvalues** (with imaginary components). This indicates there are no real vectors that maintain their direction under this transformation.
+</Warning>
+
+**Note**: In Python, imaginary numbers use `j` instead of $i$:
+- Mathematical: $2 + 3i$
+- Python: `2 + 3j`
+
+### Example 3: 90° Rotation
+
+```python
+# Define rotation matrix
+A_rotation_90 = np.array([[0, -1], [1, 0]])
+
+# Find eigenvalues and eigenvectors
+A_rotation_90_eig = np.linalg.eig(A_rotation_90)
+
+print(f"Matrix A_rotation_90:\n{A_rotation_90}")
+print(f"\nEigenvalues:\n{A_rotation_90_eig[0]}")
+print(f"\nEigenvectors:\n{A_rotation_90_eig[1]}")
+```
+
+**Interpretation**: Complex eigenvalues indicate no real vector maintains its direction during a 90° rotation - makes intuitive sense!
+
+### Example 4: Identity Matrix
+
+What happens when the transformation doesn't change anything?
+
+```python
+A_identity = np.array([[1, 0], [0, 1]])
+A_identity_eig = np.linalg.eig(A_identity)
+
+print(f"Matrix A_identity:\n{A_identity}")
+print(f"\nEigenvalues:\n{A_identity_eig[0]}")
+print(f"\nEigenvectors:\n{A_identity_eig[1]}")
+
+# Visualize
+utils.plot_transformation(
+    A_identity,
+    A_identity_eig[1][:, 0],
+    A_identity_eig[1][:, 1]
+)
+```
+
+<Info>
+**Special Case**: For the identity matrix, every vector is an eigenvector with eigenvalue $\lambda = 1$. However, NumPy only returns two eigenvectors (the standard basis).
+</Info>
+
+### Example 5: Uniform Scaling
+
+Scaling equally in all directions:
+
+```python
+A_scaling = np.array([[2, 0], [0, 2]])
+A_scaling_eig = np.linalg.eig(A_scaling)
+
+print(f"Matrix A_scaling:\n{A_scaling}")
+print(f"\nEigenvalues:\n{A_scaling_eig[0]}")
+print(f"\nEigenvectors:\n{A_scaling_eig[1]}")
+
+# Visualize
+utils.plot_transformation(
+    A_scaling,
+    A_scaling_eig[1][:, 0],
+    A_scaling_eig[1][:, 1]
+)
+```
+
+**Interpretation**: Both eigenvalues equal 2. Every vector is an eigenvector since all vectors are scaled uniformly.
+
+### Example 6: Projection onto X-axis
+
+```python
+A_projection = np.array([[1, 0], [0, 0]])
+A_projection_eig = np.linalg.eig(A_projection)
+
+print(f"Matrix A_projection:\n{A_projection}")
+print(f"\nEigenvalues:\n{A_projection_eig[0]}")
+print(f"\nEigenvectors:\n{A_projection_eig[1]}")
+
+# Visualize
+utils.plot_transformation(
+    A_projection,
+    A_projection_eig[1][:, 0],
+    A_projection_eig[1][:, 1]
+)
+```
+
+<Note>
+One eigenvalue is $\lambda = 0$. This is perfectly valid! It means vectors along the y-axis are mapped to the zero vector.
+</Note>
+
+**Interpretation:**
+- Eigenvalue $\lambda_1 = 1$: Eigenvector along x-axis (unchanged)
+- Eigenvalue $\lambda_2 = 0$: Eigenvector along y-axis (mapped to zero)
+
+## Understanding Eigenvalue Cases
+
+<AccordionGroup>
+  <Accordion title="Two Distinct Real Eigenvalues">
+    **Typical Case**: Most random matrices have two distinct real eigenvalues.
+    
+    Example: General transformation matrix
+    $$\begin{bmatrix}2 & 3 \\ 2 & 1\end{bmatrix}$$
+    
+    Two independent eigenvectors exist, forming a basis for $\mathbb{R}^2$.
+  </Accordion>
+
+  <Accordion title="Complex Eigenvalues">
+    **Rotation/Shear**: Some transformations have no real eigenvectors.
+    
+    Example: 90° rotation
+    $$\begin{bmatrix}0 & -1 \\ 1 & 0\end{bmatrix}$$
+    
+    Complex eigenvalues indicate rotation or spiral behavior. No real vector maintains its direction.
+  </Accordion>
+
+  <Accordion title="Repeated Eigenvalues">
+    **Special Cases**: Identity and uniform scaling have repeated eigenvalues.
+    
+    Example: Identity matrix
+    $$\begin{bmatrix}1 & 0 \\ 0 & 1\end{bmatrix}$$
+    
+    Eigenvalue $\lambda = 1$ appears twice. Every vector is an eigenvector, but NumPy returns only two.
+  </Accordion>
+
+  <Accordion title="Zero Eigenvalue">
+    **Projection/Collapse**: Matrix maps some directions to zero.
+    
+    Example: Projection onto x-axis
+    $$\begin{bmatrix}1 & 0 \\ 0 & 0\end{bmatrix}$$
+    
+    One eigenvalue is zero, indicating the transformation collapses one dimension.
+  </Accordion>
+</AccordionGroup>
+
+## Properties of Eigenvalues and Eigenvectors
+
+<Steps>
+  <Step title="Number of Eigenvalues">
+    An $n \times n$ matrix has exactly $n$ eigenvalues (counting multiplicities, including complex ones)
+  </Step>
+  <Step title="Sum of Eigenvalues">
+    The sum of eigenvalues equals the trace (sum of diagonal elements) of the matrix
+  </Step>
+  <Step title="Product of Eigenvalues">
+    The product of eigenvalues equals the determinant of the matrix
+  </Step>
+  <Step title="Independence">
+    Eigenvectors corresponding to distinct eigenvalues are linearly independent
+  </Step>
+</Steps>
+
+### Verification Example
+
+```python
+A = np.array([[2, 3], [2, 1]])
+eigenvalues, eigenvectors = np.linalg.eig(A)
+
+print(f"Eigenvalues: {eigenvalues}")
+print(f"Sum of eigenvalues: {np.sum(eigenvalues)}")
+print(f"Trace of A: {np.trace(A)}")
+print(f"Product of eigenvalues: {np.prod(eigenvalues)}")
+print(f"Determinant of A: {np.linalg.det(A)}")
+```
+
+## Applications
+
+<CardGroup cols={2}>
+  <Card title="Principal Component Analysis" icon="chart-line">
+    PCA uses eigenvectors of the covariance matrix to find directions of maximum variance in data
+  </Card>
+  <Card title="Google PageRank" icon="search">
+    PageRank computes the dominant eigenvector of the web graph's adjacency matrix
+  </Card>
+  <Card title="Quantum Mechanics" icon="atom">
+    Observable quantities are eigenvalues of Hermitian operators
+  </Card>
+  <Card title="Stability Analysis" icon="wave-square">
+    Eigenvalues determine stability of dynamical systems and differential equations
+  </Card>
+  <Card title="Image Compression" icon="image">
+    Singular Value Decomposition (related to eigendecomposition) enables efficient compression
+  </Card>
+  <Card title="Vibration Analysis" icon="wave-sine">
+    Natural frequencies of mechanical systems are eigenvalues of the system matrix
+  </Card>
+</CardGroup>
+
+## Practical Tips
+
+<Tabs>
+  <Tab title="Computing">
+    ```python
+    # Always check for complex eigenvalues
+    eigenvalues, eigenvectors = np.linalg.eig(A)
+    
+    if np.any(np.iscomplex(eigenvalues)):
+        print("Complex eigenvalues detected")
+        # Handle complex case
+    else:
+        print("All eigenvalues are real")
+        # Proceed with real arithmetic
+    ```
+  </Tab>
+  <Tab title="Normalization">
+    ```python
+    # NumPy returns unit eigenvectors
+    v1 = eigenvectors[:, 0]
+    print(f"Norm of v1: {np.linalg.norm(v1)}")
+    # Output: 1.0
+    
+    # Normalize custom vector
+    v = np.array([3, 4])
+    v_normalized = v / np.linalg.norm(v)
+    print(f"Normalized: {v_normalized}")
+    ```
+  </Tab>
+  <Tab title="Verification">
+    ```python
+    # Verify Av = λv
+    A = np.array([[2, 3], [2, 1]])
+    eigenvalues, eigenvectors = np.linalg.eig(A)
+    
+    λ = eigenvalues[0]
+    v = eigenvectors[:, 0:1]  # Keep as column vector
+    
+    Av = A @ v
+    λv = λ * v
+    
+    print(f"Av:\n{Av}")
+    print(f"λv:\n{λv}")
+    print(f"Close? {np.allclose(Av, λv)}")
+    ```
+  </Tab>
+</Tabs>
+
+## Summary
+
+<AccordionGroup>
+  <Accordion title="Core Concept">
+    - Eigenvector: Non-zero vector $v$ where $Av = \lambda v$
+    - Eigenvalue: Scalar $\lambda$ by which eigenvector is scaled
+    - Eigenvectors maintain their direction under transformation
+  </Accordion>
+
+  <Accordion title="Computing with NumPy">
+    - Use `np.linalg.eig(A)` to find eigenvalues and eigenvectors
+    - Returns tuple: `(eigenvalues, eigenvectors)`
+    - Eigenvectors are columns of the second array
+    - NumPy normalizes eigenvectors to unit length
+  </Accordion>
+
+  <Accordion title="Types of Eigenvalues">
+    - **Real**: Most common, indicate scaling
+    - **Complex**: Indicate rotation or spiral behavior
+    - **Repeated**: Special symmetry in transformation
+    - **Zero**: Dimension collapse or projection
+  </Accordion>
+
+  <Accordion title="Limitations">
+    - Not all matrices have real eigenvectors
+    - NumPy may not return all eigenvectors for repeated eigenvalues
+    - Numerical precision can affect results
+    - Always verify important results analytically
+  </Accordion>
+
+  <Accordion title="Applications">
+    - PCA for dimensionality reduction
+    - PageRank for web search
+    - Stability analysis in dynamics
+    - Quantum mechanics observables
+    - Vibration and resonance analysis
+  </Accordion>
+</AccordionGroup>
+
+## Further Learning
+
+<CardGroup cols={2}>
+  <Card title="Diagonalization" icon="grip-vertical">
+    Learn how matrices with full sets of eigenvectors can be diagonalized
+  </Card>
+  <Card title="Singular Value Decomposition" icon="code-branch">
+    Explore SVD, a generalization applicable to non-square matrices
+  </Card>
+  <Card title="PCA Implementation" icon="chart-scatter">
+    Apply eigendecomposition to real datasets for dimensionality reduction
+  </Card>
+  <Card title="Markov Chains" icon="diagram-project">
+    Use eigenvectors to find steady-state distributions
+  </Card>
+</CardGroup>
+
+## Conclusion
+
+Eigenvalues and eigenvectors reveal the fundamental structure of linear transformations. They identify special directions that remain unchanged (up to scaling) and quantify how much scaling occurs. This powerful concept underpins countless applications in science, engineering, and data analysis.
+
+<Card title="Return to Overview" icon="home" href="/mathematics/algebra/overview">
+  Review all linear algebra topics and continue your learning journey
+</Card>

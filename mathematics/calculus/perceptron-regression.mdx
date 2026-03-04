@@ -1,0 +1,568 @@
+---
+title: Regression with Perceptron
+description: Build neural network models for linear regression using gradient descent. Implement forward and backward propagation to predict sales and house prices.
+---
+
+This guide constructs neural networks for regression, implementing gradient descent with backward propagation. You'll build simple and multiple linear regression models from scratch, predicting real-world values like sales and house prices.
+
+<Note>
+These models were introduced in the Linear Algebra course but model training with backward propagation was omitted. Now you'll implement the complete training process.
+</Note>
+
+## Prerequisites
+
+Import required packages:
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+%matplotlib inline
+np.random.seed(3)
+```
+
+## Simple Linear Regression
+
+### Model Overview
+
+Simple linear regression predicts output $\hat{y}$ from input $x$:
+
+$$\hat{y} = wx + b$$
+
+where:
+- $w$ is the **weight** (slope)
+- $b$ is the **bias** (intercept)
+- $\hat{y}$ is the predicted value
+
+<Info>
+The goal: Find parameters $w$ and $b$ that minimize differences between predictions $\hat{y}^{(i)}$ and actual values $y^{(i)}$ across all training examples.
+</Info>
+
+### Neural Network Architecture
+
+A single perceptron implements simple linear regression:
+
+- **Input layer**: One node ($x$)
+- **Output layer**: One node ($\hat{y} = z$)
+- **Parameters**: Weight $w$ and bias $b$
+
+For training example $x^{(i)}$, the prediction is:
+
+$$\begin{align}
+z^{(i)} &= wx^{(i)} + b \\
+\hat{y}^{(i)} &= z^{(i)}
+\end{align}$$
+
+### Vectorized Forward Propagation
+
+Organize $m$ training examples as vector $X$ (size $1 \times m$):
+
+$$\begin{align}
+Z &= wX + b \\
+\hat{Y} &= Z
+\end{align}$$
+
+where $b$ is broadcast to vector size $1 \times m$.
+
+### Cost Function
+
+Measure prediction error with the **sum of squares cost function**:
+
+$$\mathcal{L}(w, b) = \frac{1}{2m}\sum_{i=1}^{m} (\hat{y}^{(i)} - y^{(i)})^2$$
+
+<Tip>
+Division by 2 simplifies derivatives during backward propagation.
+</Tip>
+
+### Backward Propagation
+
+Compute gradients (partial derivatives) for parameter updates:
+
+$$\begin{align}
+\frac{\partial \mathcal{L}}{\partial w} &= \frac{1}{m}\sum_{i=1}^{m} (\hat{y}^{(i)} - y^{(i)})x^{(i)} \\
+\frac{\partial \mathcal{L}}{\partial b} &= \frac{1}{m}\sum_{i=1}^{m} (\hat{y}^{(i)} - y^{(i)})
+\end{align}$$
+
+### Parameter Updates
+
+Iteratively update parameters using gradient descent:
+
+$$\begin{align}
+w &= w - \alpha \frac{\partial \mathcal{L}}{\partial w} \\
+b &= b - \alpha \frac{\partial \mathcal{L}}{\partial b}
+\end{align}$$
+
+where $\alpha$ is the learning rate.
+
+## Building the Neural Network
+
+<Steps>
+  <Step title="Define Network Structure">
+    Specify input and output layer sizes
+  </Step>
+  <Step title="Initialize Parameters">
+    Set initial values for weights and biases
+  </Step>
+  <Step title="Training Loop">
+    - Forward propagation (compute output)
+    - Backward propagation (compute gradients)
+    - Update parameters
+  </Step>
+  <Step title="Make Predictions">
+    Use trained parameters on new data
+  </Step>
+</Steps>
+
+### Dataset: TV Marketing and Sales
+
+Load the dataset with TV marketing expenses and sales:
+
+```python
+path = "data/tvmarketing.csv"
+adv = pd.read_csv(path)
+
+adv.head()
+```
+
+Visualize the relationship:
+
+```python
+adv.plot(x='TV', y='Sales', kind='scatter', c='black')
+```
+
+### Data Normalization
+
+Normalize features for efficient gradient descent:
+
+```python
+# Subtract mean and divide by standard deviation
+adv_norm = (adv - np.mean(adv)) / np.std(adv)
+
+adv_norm.plot(x='TV', y='Sales', kind='scatter', c='black')
+```
+
+<Info>
+Normalization ensures features have similar scales, preventing one feature from dominating the gradient updates.
+</Info>
+
+Prepare arrays:
+
+```python
+X_norm = adv_norm['TV']
+Y_norm = adv_norm['Sales']
+
+X_norm = np.array(X_norm).reshape((1, len(X_norm)))
+Y_norm = np.array(Y_norm).reshape((1, len(Y_norm)))
+
+print('The shape of X_norm:', X_norm.shape)
+print('The shape of Y_norm:', Y_norm.shape)
+print('I have m = %d training examples!' % (X_norm.shape[1]))
+```
+
+## Implementation
+
+### Step 1: Define Layer Sizes
+
+```python
+def layer_sizes(X, Y):
+    """
+    Arguments:
+    X -- input dataset of shape (input size, number of examples)
+    Y -- labels of shape (output size, number of examples)
+    
+    Returns:
+    n_x -- the size of the input layer
+    n_y -- the size of the output layer
+    """
+    n_x = X.shape[0]
+    n_y = Y.shape[0]
+    
+    return (n_x, n_y)
+
+(n_x, n_y) = layer_sizes(X_norm, Y_norm)
+print("The size of the input layer is: n_x =", n_x)
+print("The size of the output layer is: n_y =", n_y)
+```
+
+### Step 2: Initialize Parameters
+
+```python
+def initialize_parameters(n_x, n_y):
+    """
+    Returns:
+    params -- python dictionary containing your parameters:
+                    W -- weight matrix of shape (n_y, n_x)
+                    b -- bias value set as a vector of shape (n_y, 1)
+    """
+    W = np.random.randn(n_y, n_x) * 0.01
+    b = np.zeros((n_y, 1))
+    
+    parameters = {"W": W, "b": b}
+    
+    return parameters
+
+parameters = initialize_parameters(n_x, n_y)
+print("W =", parameters["W"])
+print("b =", parameters["b"])
+```
+
+<Note>
+Weights are initialized with small random values to break symmetry. Biases start at zero.
+</Note>
+
+### Step 3: Forward Propagation
+
+```python
+def forward_propagation(X, parameters):
+    """
+    Argument:
+    X -- input data of size (n_x, m)
+    parameters -- python dictionary containing your parameters
+    
+    Returns:
+    Y_hat -- The output
+    """
+    W = parameters["W"]
+    b = parameters["b"]
+    
+    Z = np.matmul(W, X) + b
+    Y_hat = Z
+
+    return Y_hat
+
+Y_hat = forward_propagation(X_norm, parameters)
+print("Some elements of output vector Y_hat:", Y_hat[0, 0:5])
+```
+
+### Step 4: Compute Cost
+
+```python
+def compute_cost(Y_hat, Y):
+    """
+    Computes the cost function as a sum of squares
+    
+    Arguments:
+    Y_hat -- The output of the neural network of shape (n_y, number of examples)
+    Y -- "true" labels vector of shape (n_y, number of examples)
+    
+    Returns:
+    cost -- sum of squares scaled by 1/(2*number of examples)
+    """
+    m = Y_hat.shape[1]
+    cost = np.sum((Y_hat - Y)**2) / (2*m)
+    
+    return cost
+
+print("cost =", compute_cost(Y_hat, Y_norm))
+```
+
+### Step 5: Backward Propagation
+
+```python
+def backward_propagation(Y_hat, X, Y):
+    """
+    Implements the backward propagation, calculating gradients
+    
+    Arguments:
+    Y_hat -- the output of the neural network of shape (n_y, number of examples)
+    X -- input data of shape (n_x, number of examples)
+    Y -- "true" labels vector of shape (n_y, number of examples)
+    
+    Returns:
+    grads -- python dictionary containing gradients with respect to different parameters
+    """
+    m = X.shape[1]
+    
+    dZ = Y_hat - Y
+    dW = (1/m) * np.dot(dZ, X.T)
+    db = (1/m) * np.sum(dZ, axis=1, keepdims=True)
+    
+    grads = {"dW": dW, "db": db}
+    
+    return grads
+
+grads = backward_propagation(Y_hat, X_norm, Y_norm)
+print("dW =", grads["dW"])
+print("db =", grads["db"])
+```
+
+### Step 6: Update Parameters
+
+```python
+def update_parameters(parameters, grads, learning_rate=1.2):
+    """
+    Updates parameters using the gradient descent update rule
+    
+    Arguments:
+    parameters -- python dictionary containing parameters
+    grads -- python dictionary containing gradients
+    learning_rate -- learning rate parameter for gradient descent
+    
+    Returns:
+    parameters -- python dictionary containing updated parameters
+    """
+    W = parameters["W"]
+    b = parameters["b"]
+    
+    dW = grads["dW"]
+    db = grads["db"]
+    
+    W = W - learning_rate * dW
+    b = b - learning_rate * db
+    
+    parameters = {"W": W, "b": b}
+    
+    return parameters
+
+parameters_updated = update_parameters(parameters, grads)
+print("W updated =", parameters_updated["W"])
+print("b updated =", parameters_updated["b"])
+```
+
+### Step 7: Build Complete Model
+
+```python
+def nn_model(X, Y, num_iterations=10, learning_rate=1.2, print_cost=False):
+    """
+    Arguments:
+    X -- dataset of shape (n_x, number of examples)
+    Y -- labels of shape (n_y, number of examples)
+    num_iterations -- number of iterations in the loop
+    learning_rate -- learning rate parameter for gradient descent
+    print_cost -- if True, print the cost every iteration
+    
+    Returns:
+    parameters -- parameters learnt by the model
+    """
+    n_x = layer_sizes(X, Y)[0]
+    n_y = layer_sizes(X, Y)[1]
+    
+    parameters = initialize_parameters(n_x, n_y)
+    
+    for i in range(0, num_iterations):
+        # Forward propagation
+        Y_hat = forward_propagation(X, parameters)
+        
+        # Cost function
+        cost = compute_cost(Y_hat, Y)
+        
+        # Backpropagation
+        grads = backward_propagation(Y_hat, X, Y)
+    
+        # Update parameters
+        parameters = update_parameters(parameters, grads, learning_rate)
+        
+        if print_cost:
+            print("Cost after iteration %i: %f" % (i, cost))
+
+    return parameters
+```
+
+### Train the Model
+
+```python
+parameters_simple = nn_model(X_norm, Y_norm, num_iterations=30, 
+                             learning_rate=1.2, print_cost=True)
+print("W =", parameters_simple["W"])
+print("b =", parameters_simple["b"])
+```
+
+<Info>
+Notice how the cost decreases with each iteration! After a few iterations, the model converges and the cost stops changing significantly.
+</Info>
+
+### Make Predictions
+
+```python
+def predict(X, Y, parameters, X_pred):
+    W = parameters["W"]
+    b = parameters["b"]
+    
+    # Normalize prediction input using training data statistics
+    if isinstance(X, pd.Series):
+        X_mean = np.mean(X)
+        X_std = np.std(X)
+        X_pred_norm = ((X_pred - X_mean)/X_std).reshape((1, len(X_pred)))
+    else:
+        X_mean = np.array(np.mean(X)).reshape((len(X.axes[1]), 1))
+        X_std = np.array(np.std(X)).reshape((len(X.axes[1]), 1))
+        X_pred_norm = ((X_pred - X_mean)/X_std)
+    
+    # Make predictions
+    Y_pred_norm = np.matmul(W, X_pred_norm) + b
+    
+    # Denormalize using training data statistics
+    Y_pred = Y_pred_norm * np.std(Y) + np.mean(Y)
+    
+    return Y_pred[0]
+
+X_pred = np.array([50, 120, 280])
+Y_pred = predict(adv["TV"], adv["Sales"], parameters_simple, X_pred)
+print(f"TV marketing expenses:\n{X_pred}")
+print(f"Predictions of sales:\n{Y_pred}")
+```
+
+<Warning>
+Always normalize prediction inputs using the training data's mean and standard deviation, then denormalize outputs.
+</Warning>
+
+### Visualize Results
+
+```python
+fig, ax = plt.subplots()
+plt.scatter(adv["TV"], adv["Sales"], color="black")
+
+plt.xlabel("TV Marketing Budget")
+plt.ylabel("Sales")
+    
+X_line = np.arange(np.min(adv["TV"]), np.max(adv["TV"])*1.1, 0.1)
+Y_line = predict(adv["TV"], adv["Sales"], parameters_simple, X_line)
+ax.plot(X_line, Y_line, "r", label="Regression Line")
+ax.plot(X_pred, Y_pred, "bo", label="Predictions")
+plt.legend()
+plt.show()
+```
+
+## Multiple Linear Regression
+
+### Model with Two Variables
+
+Extend to multiple inputs:
+
+$$\hat{y} = w_1x_1 + w_2x_2 + b = Wx + b$$
+
+where:
+- $W = \begin{bmatrix} w_1 & w_2 \end{bmatrix}$ is the weight vector
+- $x = \begin{bmatrix} x_1 & x_2 \end{bmatrix}$ is the input vector
+
+### Neural Network with Two Input Nodes
+
+The architecture now has:
+- **Input layer**: Two nodes ($x_1$, $x_2$)
+- **Output layer**: One node ($\hat{y}$)
+- **Parameters**: Weight vector $W$ (size $1 \times 2$) and bias $b$
+
+### Vectorized Form
+
+For $m$ training examples organized in matrix $X$ (size $2 \times m$):
+
+$$\begin{align}
+Z &= WX + b \\
+\hat{Y} &= Z
+\end{align}$$
+
+### Backward Propagation in Matrix Form
+
+Gradients become:
+
+$$\begin{align}
+\frac{\partial \mathcal{L}}{\partial W} &= \frac{1}{m}(\hat{Y} - Y)X^T \\
+\frac{\partial \mathcal{L}}{\partial b} &= \frac{1}{m}(\hat{Y} - Y)\mathbf{1}
+\end{align}$$
+
+where $\mathbf{1}$ is a vector of ones (size $m \times 1$).
+
+<Info>
+The same implementation works for any number of input features! Only the layer sizes change.
+</Info>
+
+### Dataset: House Prices
+
+Load house price data:
+
+```python
+df = pd.read_csv('data/house_prices_train.csv')
+
+X_multi = df[['GrLivArea', 'OverallQual']]
+Y_multi = df['SalePrice']
+
+display(X_multi)
+display(Y_multi)
+```
+
+Normalize and prepare:
+
+```python
+X_multi_norm = (X_multi - np.mean(X_multi)) / np.std(X_multi)
+Y_multi_norm = (Y_multi - np.mean(Y_multi)) / np.std(Y_multi)
+
+X_multi_norm = np.array(X_multi_norm).T
+Y_multi_norm = np.array(Y_multi_norm).reshape((1, len(Y_multi_norm)))
+
+print('The shape of X:', X_multi_norm.shape)
+print('The shape of Y:', Y_multi_norm.shape)
+print('I have m = %d training examples!' % (X_multi_norm.shape[1]))
+```
+
+### Train Multiple Regression Model
+
+<Note>
+No code changes needed! The same `nn_model` function handles multiple inputs automatically.
+</Note>
+
+```python
+parameters_multi = nn_model(X_multi_norm, Y_multi_norm, 
+                            num_iterations=100, print_cost=True)
+
+print("W =", parameters_multi["W"])
+print("b =", parameters_multi["b"])
+```
+
+### Predict House Prices
+
+```python
+X_pred_multi = np.array([[1710, 7], [1200, 6], [2200, 8]]).T
+Y_pred_multi = predict(X_multi, Y_multi, parameters_multi, X_pred_multi)
+
+print(f"Ground living area (sq ft):\n{X_pred_multi[0]}")
+print(f"Overall quality (1-10):\n{X_pred_multi[1]}")
+print(f"Predicted sales price ($):\n{np.round(Y_pred_multi)}")
+```
+
+## Key Concepts
+
+<CardGroup cols={2}>
+  <Card title="Forward Propagation" icon="arrow-right">
+    Compute predictions from inputs using current parameters
+  </Card>
+  <Card title="Backward Propagation" icon="arrow-left">
+    Calculate gradients showing how to adjust parameters
+  </Card>
+  <Card title="Cost Function" icon="chart-line">
+    Measures prediction error; goal is to minimize it
+  </Card>
+  <Card title="Parameter Updates" icon="rotate">
+    Adjust weights and biases to reduce cost
+  </Card>
+</CardGroup>
+
+<Accordion title="Why normalize data?">
+Normalization ensures all features have similar scales. Without it, features with larger values dominate the gradient, causing slow or failed convergence.
+</Accordion>
+
+<Accordion title="Why initialize weights randomly?">
+Random initialization breaks symmetry. If all weights start equal, all neurons learn the same thing during training—defeating the purpose of having multiple neurons.
+</Accordion>
+
+<Accordion title="How do I know training is working?">
+Watch the cost function. It should decrease consistently. If it increases, the learning rate is too large. If it doesn't change, the learning rate might be too small or the model has converged.
+</Accordion>
+
+## Summary
+
+You've built neural networks for regression from scratch, implementing:
+
+✓ Forward propagation (predictions)  
+✓ Cost function (error measurement)  
+✓ Backward propagation (gradient computation)  
+✓ Parameter updates (learning)  
+✓ Prediction on new data
+
+The same architecture scales from simple to multiple linear regression automatically!
+
+## Next Steps
+
+Learn how to adapt this model for classification:
+
+- [Perceptron Classification](/mathematics/calculus/perceptron-classification) - Build classifiers with activation functions

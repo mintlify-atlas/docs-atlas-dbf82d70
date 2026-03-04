@@ -1,0 +1,300 @@
+---
+title: Gradient Descent Algorithm
+description: Learn gradient descent, a fundamental optimization algorithm used throughout machine learning to minimize cost functions and train models.
+---
+
+## Introduction
+
+Gradient descent is one of the most important algorithms in machine learning. It's used to train not just linear regression, but also advanced neural network models (deep learning). Learning gradient descent will give you one of the most important building blocks in machine learning.
+
+<Info>
+Gradient descent is an algorithm that you can use to minimize any function, not just the cost function for linear regression.
+</Info>
+
+## The Optimization Problem
+
+You have a cost function **J(w, b)** that you want to minimize. For linear regression, this is the squared error cost function, but gradient descent applies to more general functions.
+
+### General Form
+
+For a model with multiple parameters:
+- **J(w₁, w₂, ..., wₙ, b)** = cost function
+- **Goal**: Minimize J by choosing optimal values for w₁ through wₙ and b
+
+## How Gradient Descent Works
+
+<Steps>
+  <Step title="Start with initial guesses">
+    Begin with some initial values for w and b (commonly both set to 0 for linear regression)
+  </Step>
+  
+  <Step title="Iteratively adjust parameters">
+    Keep changing w and b to reduce the cost J(w, b)
+  </Step>
+  
+  <Step title="Repeat until convergence">
+    Continue until J settles at or near a minimum
+  </Step>
+</Steps>
+
+## Visualizing Gradient Descent
+
+Imagine you're standing on a hilly landscape where:
+- Height represents the cost function value
+- Your position represents the parameter values (w, b)
+- Your goal is to reach the bottom of a valley
+
+<Accordion title="The Descent Process">
+1. **Look around 360 degrees**: Which direction leads downhill most steeply?
+2. **Take a small step**: Move in the direction of steepest descent
+3. **Repeat**: From your new position, again find the steepest direction downhill
+4. **Continue**: Keep taking steps until you reach a valley bottom (local minimum)
+</Accordion>
+
+<Note>
+The direction of steepest descent is determined mathematically by the derivative (or gradient) of the cost function.
+</Note>
+
+## Local Minima
+
+An interesting property of gradient descent: **different starting points can lead to different local minima**.
+
+<Tabs>
+  <Tab title="First Valley">
+    If you start at one location and follow gradient descent, you might end up in one valley (local minimum).
+  </Tab>
+  
+  <Tab title="Second Valley">
+    If you start just a few steps away, gradient descent might lead you to a completely different valley.
+  </Tab>
+  
+  <Tab title="Squared Error">
+    For linear regression with squared error cost function, the surface is bow-shaped (convex), so there's only one global minimum—no multiple local minima to worry about!
+  </Tab>
+</Tabs>
+
+## The Gradient Descent Algorithm
+
+### Update Rules
+
+The gradient descent algorithm repeatedly updates parameters until convergence:
+
+```python
+# Simultaneously update w and b
+w = w - α * (∂J/∂w)
+b = b - α * (∂J/∂b)
+```
+
+Where:
+- **α** (alpha) = learning rate
+- **∂J/∂w** = partial derivative of J with respect to w
+- **∂J/∂b** = partial derivative of J with respect to b
+
+### Understanding the Components
+
+<Accordion title="Assignment Operator (=)">
+In programming, `=` is an assignment operator, not a truth assertion:
+
+```python
+w = w - 0.1  # Update w by subtracting 0.1
+a = a + 1    # Increment a by 1
+```
+
+This is different from mathematical equality. In Python, `==` tests equality:
+
+```python
+if a == c:  # Check if a equals c
+    print("Equal")
+```
+</Accordion>
+
+<Accordion title="Learning Rate (α)">
+The **learning rate** controls the size of each step:
+
+- Typical values: 0.001, 0.01, 0.1 (small positive number between 0 and 1)
+- **Large α**: Aggressive, large steps downhill (faster but may overshoot)
+- **Small α**: Cautious, small steps downhill (slower but more precise)
+
+Choosing the right learning rate is crucial for good performance.
+</Accordion>
+
+<Accordion title="Derivative Term (∂J/∂w)">
+The **derivative** indicates:
+
+1. **Direction**: Which way to adjust the parameter (increase or decrease)
+2. **Magnitude**: How much to adjust (steep slope = larger adjustment)
+
+You don't need to know calculus to use gradient descent—the key intuition is that derivatives point us toward the minimum.
+</Accordion>
+
+## Simultaneous Updates
+
+It's critical to update all parameters **simultaneously** (at the same time).
+
+### ✅ Correct Implementation
+
+```python
+# Step 1: Compute updates using current values
+temp_w = w - α * (∂J/∂w)  # Calculate new w
+temp_b = b - α * (∂J/∂b)  # Calculate new b
+
+# Step 2: Update simultaneously
+w = temp_w
+b = temp_b
+```
+
+<Tip>
+Compute both updates BEFORE applying either one. This ensures both derivatives are calculated using the same parameter values.
+</Tip>
+
+### ❌ Incorrect Implementation
+
+```python
+# Wrong: Updates w first, then uses new w to compute temp_b
+temp_w = w - α * (∂J/∂w)
+w = temp_w  # ❌ Updates w before computing temp_b
+
+temp_b = b - α * (∂J/∂b)  # Uses updated w (wrong!)
+b = temp_b
+```
+
+<Note>
+This non-simultaneous update might still work sometimes, but it's not the standard gradient descent algorithm and has different properties.
+</Note>
+
+## Complete Algorithm
+
+```python
+import numpy as np
+
+def gradient_descent(x, y, w_init, b_init, alpha, num_iters):
+    """
+    Performs gradient descent to learn w and b
+    
+    Args:
+        x: Training examples (features)
+        y: Training examples (targets)
+        w_init: Initial value of w
+        b_init: Initial value of b
+        alpha: Learning rate
+        num_iters: Number of iterations to run
+    
+    Returns:
+        w: Optimized parameter w
+        b: Optimized parameter b
+    """
+    w = w_init
+    b = b_init
+    m = len(x)  # Number of training examples
+    
+    for i in range(num_iters):
+        # Compute derivatives
+        dj_dw = 0
+        dj_db = 0
+        
+        for j in range(m):
+            f_wb = w * x[j] + b
+            dj_dw += (f_wb - y[j]) * x[j]
+            dj_db += (f_wb - y[j])
+        
+        dj_dw = dj_dw / m
+        dj_db = dj_db / m
+        
+        # Update parameters simultaneously
+        temp_w = w - alpha * dj_dw
+        temp_b = b - alpha * dj_db
+        
+        w = temp_w
+        b = temp_b
+        
+        # Optionally print cost every 100 iterations
+        if i % 100 == 0:
+            cost = compute_cost(x, y, w, b)
+            print(f"Iteration {i}: Cost {cost:.2f}")
+    
+    return w, b
+
+def compute_cost(x, y, w, b):
+    """Compute cost function"""
+    m = len(x)
+    total_cost = 0
+    
+    for i in range(m):
+        f_wb = w * x[i] + b
+        total_cost += (f_wb - y[i]) ** 2
+    
+    return total_cost / (2 * m)
+
+# Example usage
+x_train = np.array([1.0, 2.0, 3.0])
+y_train = np.array([300, 500, 700])
+
+# Initialize parameters
+w_init = 0
+b_init = 0
+alpha = 0.01
+iterations = 1000
+
+# Run gradient descent
+w_final, b_final = gradient_descent(x_train, y_train, w_init, b_init, alpha, iterations)
+
+print(f"Optimized parameters: w = {w_final:.2f}, b = {b_final:.2f}")
+```
+
+## Key Insights
+
+<Card title="Universal Algorithm" icon="globe">
+Gradient descent works for many machine learning algorithms, not just linear regression. It's used to train neural networks, logistic regression, and many other models.
+</Card>
+
+<Card title="Iterative Process" icon="rotate">
+Gradient descent is an iterative algorithm—it gradually improves the parameters through repeated updates rather than computing the optimal solution directly.
+</Card>
+
+<Card title="Convergence" icon="bullseye">
+The algorithm converges when parameters stop changing significantly. This happens when you reach a local minimum where the derivatives are close to zero.
+</Card>
+
+## Linear Regression with Gradient Descent
+
+For linear regression with squared error cost function:
+
+- The cost function J(w, b) is always **convex** (bow-shaped)
+- There's only **one global minimum** (no local minima)
+- Gradient descent is **guaranteed to converge** to the global minimum (with appropriate learning rate)
+
+## Common Challenges
+
+<Accordion title="Learning Rate Too Large">
+If α is too large:
+- May overshoot the minimum
+- Cost might increase instead of decrease
+- May never converge
+
+**Solution**: Reduce the learning rate
+</Accordion>
+
+<Accordion title="Learning Rate Too Small">
+If α is too small:
+- Convergence is very slow
+- Takes many iterations to reach minimum
+
+**Solution**: Increase the learning rate (but not too much)
+</Accordion>
+
+<Accordion title="Poor Initialization">
+For some non-convex functions, starting point matters:
+- May converge to a poor local minimum
+- Linear regression doesn't have this problem (convex)
+
+**Solution**: Try multiple random initializations
+</Accordion>
+
+## What's Next
+
+Now that you understand gradient descent fundamentals, you can:
+
+- Learn about derivatives and how they're computed for gradient descent
+- Explore techniques to make gradient descent more efficient
+- Apply gradient descent to multiple linear regression with many features
+- Use gradient descent for other algorithms like logistic regression

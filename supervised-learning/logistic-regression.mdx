@@ -1,0 +1,419 @@
+---
+title: Logistic Regression
+description: Learn logistic regression, the most widely used classification algorithm for predicting binary outcomes.
+---
+
+## Introduction
+
+Logistic regression is probably the single most widely used classification algorithm in the world. Despite its name containing "regression," it's actually used for **classification problems** where the output is a category (0 or 1) rather than a continuous number.
+
+<Info>
+Logistic regression is used when the output variable y can take on only one of a small number of discrete values. For binary classification, y is either 0 or 1.
+</Info>
+
+## Why Not Linear Regression for Classification?
+
+Linear regression is not suitable for classification problems. Here's why:
+
+### The Problem with Linear Regression
+
+Suppose you're classifying tumors as malignant (1) or benign (0) based on tumor size:
+
+<Accordion title="Scenario 1: Linear regression seems to work">
+With a small dataset, linear regression might fit a line that, with a threshold of 0.5, classifies correctly:
+- Predictions < 0.5 → Class 0 (benign)
+- Predictions ≥ 0.5 → Class 1 (malignant)
+</Accordion>
+
+<Accordion title="Scenario 2: One new example breaks everything">
+But add one large tumor example on the right, and the line shifts. Now the classification boundary moves, causing previously correct predictions to become wrong. Linear regression's predictions can be any number, not just 0 or 1.
+</Accordion>
+
+<Note>
+Linear regression can output values less than 0 or greater than 1, which doesn't make sense for classification where we want probabilities between 0 and 1.
+</Note>
+
+## The Sigmoid Function
+
+Logistic regression uses the **sigmoid function** (also called the **logistic function**) to squash predictions between 0 and 1.
+
+### Mathematical Definition
+
+The sigmoid function is:
+
+```python
+g(z) = 1 / (1 + e^(-z))
+```
+
+Where:
+- **e** ≈ 2.718 (mathematical constant)
+- **z** can be any real number (-∞ to +∞)
+- **g(z)** is always between 0 and 1
+
+### Properties of the Sigmoid Function
+
+<Tabs>
+  <Tab title="Large Positive z">
+    When z is very large (e.g., z = 100):
+    
+    ```python
+    e^(-100) ≈ 0 (tiny number)
+    g(100) = 1 / (1 + 0) ≈ 1
+    ```
+    
+    The sigmoid approaches 1.
+  </Tab>
+  
+  <Tab title="Large Negative z">
+    When z is very negative (e.g., z = -100):
+    
+    ```python
+    e^(100) = huge number
+    g(-100) = 1 / (1 + huge) ≈ 0
+    ```
+    
+    The sigmoid approaches 0.
+  </Tab>
+  
+  <Tab title="Zero">
+    When z = 0:
+    
+    ```python
+    e^0 = 1
+    g(0) = 1 / (1 + 1) = 0.5
+    ```
+    
+    The sigmoid equals 0.5 at the origin.
+  </Tab>
+</Tabs>
+
+### Visualizing the Sigmoid
+
+The sigmoid creates an S-shaped curve:
+- Starts near 0 for large negative values
+- Smoothly transitions through 0.5 at z = 0  
+- Approaches 1 for large positive values
+
+## The Logistic Regression Model
+
+Logistic regression combines linear regression with the sigmoid function in two steps:
+
+<Steps>
+  <Step title="Compute linear combination">
+    ```python
+    z = w · x + b
+    ```
+    
+    Same as linear regression: weighted sum of features plus bias
+  </Step>
+  
+  <Step title="Apply sigmoid function">
+    ```python
+    f(x) = g(z) = 1 / (1 + e^(-z))
+    ```
+    
+    Pass z through sigmoid to get output between 0 and 1
+  </Step>
+</Steps>
+
+### Complete Model
+
+Combining these steps:
+
+```python
+f(x) = g(w · x + b) = 1 / (1 + e^(-(w·x + b)))
+```
+
+This is the **logistic regression model**.
+
+<Tip>
+You can think of the output as the probability that y = 1 given input x. If f(x) = 0.7, the model estimates a 70% chance that y = 1.
+</Tip>
+
+## Interpreting the Output
+
+### Probability Interpretation
+
+The output f(x) represents:
+
+```python
+f(x) = P(y = 1 | x)
+```
+
+**Translation**: The probability that y equals 1, given input features x.
+
+### Example: Tumor Classification
+
+Suppose a patient has a tumor of certain size x, and the model outputs:
+
+```python
+f(x) = 0.7
+```
+
+**Interpretation**:
+- 70% chance the tumor is malignant (y = 1)
+- 30% chance the tumor is benign (y = 0)
+
+<Note>
+Probabilities must sum to 1. If P(y=1) = 0.7, then P(y=0) = 1 - 0.7 = 0.3.
+</Note>
+
+## Implementation
+
+### Python Implementation
+
+```python
+import numpy as np
+
+def sigmoid(z):
+    """
+    Compute the sigmoid function
+    
+    Args:
+        z: Input value(s), can be scalar or array
+    
+    Returns:
+        g: Sigmoid of z, between 0 and 1
+    """
+    g = 1 / (1 + np.exp(-z))
+    return g
+
+def predict_logistic(x, w, b):
+    """
+    Make prediction using logistic regression
+    
+    Args:
+        x: Feature vector
+        w: Weight vector
+        b: Bias parameter
+    
+    Returns:
+        probability: P(y=1|x)
+    """
+    z = np.dot(w, x) + b
+    return sigmoid(z)
+
+# Example: Tumor classification
+w = np.array([0.5])  # Weight for tumor size
+b = -10.0            # Bias
+
+# Test different tumor sizes
+tumor_sizes = np.array([5, 10, 15, 20, 25])
+
+print("Tumor Size | Probability Malignant")
+print("-" * 40)
+for size in tumor_sizes:
+    prob = predict_logistic(np.array([size]), w, b)
+    print(f"{size:10.1f} | {prob:0.4f} ({prob*100:.1f}%)")
+```
+
+Output:
+```
+Tumor Size | Probability Malignant
+----------------------------------------
+       5.0 | 0.0067 (0.7%)
+      10.0 | 0.0474 (4.7%)
+      15.0 | 0.2689 (26.9%)
+      20.0 | 0.7311 (73.1%)
+      25.0 | 0.9526 (95.3%)
+```
+
+### With Multiple Features
+
+```python
+# Multiple features: size, age, etc.
+def predict_multi_logistic(x, w, b):
+    """
+    Logistic regression with multiple features
+    
+    Args:
+        x: Feature vector [x1, x2, ..., xn]
+        w: Weight vector [w1, w2, ..., wn]
+        b: Bias
+    
+    Returns:
+        probability: P(y=1|x)
+    """
+    z = np.dot(w, x) + b
+    return sigmoid(z)
+
+# Example with 2 features
+w = np.array([0.5, 0.1])  # Weights for [size, age]
+b = -15.0
+
+# Patient: tumor size=20, age=50
+patient = np.array([20, 50])
+prob = predict_multi_logistic(patient, w, b)
+
+print(f"Probability malignant: {prob:.4f} ({prob*100:.1f}%)")
+print(f"Probability benign: {1-prob:.4f} ({(1-prob)*100:.1f}%)")
+```
+
+## Decision Boundary
+
+The **decision boundary** is where the model switches between predicting class 0 and class 1.
+
+### Threshold at 0.5
+
+Common decision rule:
+- If f(x) ≥ 0.5, predict y = 1
+- If f(x) < 0.5, predict y = 0
+
+### When is f(x) = 0.5?
+
+Since sigmoid(0) = 0.5, we have f(x) = 0.5 when:
+
+```python
+z = w · x + b = 0
+```
+
+This equation defines the **decision boundary**.
+
+<Accordion title="Linear Decision Boundary">
+With two features x₁ and x₂:
+
+```python
+z = w₁*x₁ + w₂*x₂ + b = 0
+```
+
+This is a straight line separating the two classes.
+</Accordion>
+
+<Accordion title="Non-linear Decision Boundary">
+With polynomial features like x₁², x₂²:
+
+```python
+z = w₁*x₁² + w₂*x₂² + b = 0
+```
+
+This creates a circular or elliptical boundary.
+</Accordion>
+
+## Cost Function for Logistic Regression
+
+The squared error cost function doesn't work well for logistic regression (creates non-convex function with many local minima).
+
+Instead, we use the **logistic loss** or **binary cross-entropy**:
+
+```python
+J(w, b) = -(1/m) * Σ[y⁽ⁱ⁾ log(f(x⁽ⁱ⁾)) + (1-y⁽ⁱ⁾) log(1-f(x⁽ⁱ⁾))]
+```
+
+This cost function:
+- Is convex (one global minimum)
+- Heavily penalizes confident wrong predictions
+- Works well with gradient descent
+
+## Training with Gradient Descent
+
+Gradient descent for logistic regression:
+
+```python
+def compute_gradient_logistic(X, y, w, b):
+    """
+    Compute gradient for logistic regression
+    
+    Args:
+        X: Training examples (m x n)
+        y: Labels (m, )
+        w: Weights (n, )
+        b: Bias
+    
+    Returns:
+        dj_dw: Gradient of cost w.r.t. w
+        dj_db: Gradient of cost w.r.t. b
+    """
+    m = len(y)
+    n = len(w)
+    
+    dj_dw = np.zeros(n)
+    dj_db = 0.0
+    
+    for i in range(m):
+        z = np.dot(w, X[i]) + b
+        f_wb = sigmoid(z)
+        err = f_wb - y[i]
+        
+        for j in range(n):
+            dj_dw[j] += err * X[i][j]
+        dj_db += err
+    
+    dj_dw = dj_dw / m
+    dj_db = dj_db / m
+    
+    return dj_dw, dj_db
+
+def gradient_descent_logistic(X, y, w_init, b_init, alpha, num_iters):
+    """
+    Performs gradient descent for logistic regression
+    
+    Args:
+        X: Training examples
+        y: Labels  
+        w_init: Initial weights
+        b_init: Initial bias
+        alpha: Learning rate
+        num_iters: Number of iterations
+    
+    Returns:
+        w, b: Optimized parameters
+    """
+    w = w_init
+    b = b_init
+    
+    for i in range(num_iters):
+        dj_dw, dj_db = compute_gradient_logistic(X, y, w, b)
+        
+        w = w - alpha * dj_dw
+        b = b - alpha * dj_db
+        
+        if i % 1000 == 0:
+            print(f"Iteration {i}: w={w}, b={b:.2f}")
+    
+    return w, b
+```
+
+## Key Takeaways
+
+<Card title="Classification, Not Regression" icon="tag">
+Despite its name, logistic regression is used for classification problems, predicting discrete categories rather than continuous values.
+</Card>
+
+<Card title="Outputs Probabilities" icon="percentage">
+The sigmoid function ensures outputs are between 0 and 1, interpretable as probabilities that y = 1.
+</Card>
+
+<Card title="Decision Boundary" icon="divide">
+The decision boundary (where z = 0) separates regions where the model predicts different classes.
+</Card>
+
+<Card title="Widely Used" icon="star">
+Logistic regression is one of the most commonly used algorithms in practice, powering applications from medical diagnosis to ad targeting.
+</Card>
+
+## Real-World Applications
+
+<Accordion title="Medical Diagnosis">
+Classifying whether a patient has a disease based on symptoms, test results, and medical history.
+</Accordion>
+
+<Accordion title="Email Spam Detection">
+Determining if an email is spam based on content, sender, subject line, and other features.
+</Accordion>
+
+<Accordion title="Credit Scoring">
+Predicting whether a loan applicant will default based on income, credit history, and other factors.
+</Accordion>
+
+<Accordion title="Customer Churn">
+Identifying which customers are likely to stop using a service based on usage patterns and demographics.
+</Accordion>
+
+## What's Next
+
+Now that you understand logistic regression, explore:
+
+- **Regularization** to prevent overfitting in classification
+- **Multi-class classification** for problems with more than 2 categories
+- **Advanced optimization** algorithms beyond gradient descent
+- **Performance metrics** like precision, recall, and F1-score

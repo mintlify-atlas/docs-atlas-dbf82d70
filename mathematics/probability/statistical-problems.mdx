@@ -1,0 +1,525 @@
+---
+title: Statistical Problems & Simulations
+description: Explore counter-intuitive probability problems including the Birthday Paradox, Monty Hall Problem, and dice simulations using NumPy.
+---
+
+Probability can be surprisingly counter-intuitive. This guide explores famous problems that challenge our intuition and shows how to solve them using both simulation and analytical methods.
+
+## Simulating Dice Throws with NumPy
+
+### Introduction
+
+Learn to simulate random events using NumPy, from simple dice rolls to complex probability scenarios.
+
+<Steps>
+  <Step title="Import NumPy">
+    ```python
+    import numpy as np
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    ```
+  </Step>
+  
+  <Step title="Create a Dice">
+    ```python
+    # Define number of sides
+    n_sides = 6
+    
+    # Represent dice as array
+    dice = np.array([i for i in range(1, n_sides+1)])
+    print(dice)  # [1 2 3 4 5 6]
+    ```
+  </Step>
+  
+  <Step title="Roll the Dice">
+    ```python
+    # Single roll
+    result = np.random.choice(dice)
+    
+    # Multiple rolls
+    n_rolls = 20
+    rolls = np.array([np.random.choice(dice) for _ in range(n_rolls)])
+    print(rolls)
+    ```
+  </Step>
+</Steps>
+
+### Computing Statistics
+
+Calculate mean and variance of dice rolls:
+
+```python
+n_rolls = 20_000
+rolls = np.array([np.random.choice(dice) for _ in range(n_rolls)])
+
+# Compute statistics
+mean = np.mean(rolls)
+variance = np.var(rolls)
+
+print(f"Mean: {mean:.2f}")
+print(f"Variance: {variance:.2f}")
+
+# Visualize distribution
+sns.histplot(rolls, discrete=True)
+plt.title(f"Histogram of {n_rolls} rolls")
+plt.show()
+```
+
+<Info>
+  For a fair 6-sided die, the theoretical mean is 3.5 and variance is 2.916. With more simulations, your results approach these values.
+</Info>
+
+### Summing Multiple Rolls
+
+Simulate rolling dice twice and summing results:
+
+```python
+n_rolls = 20_000
+
+# First roll
+first_rolls = np.array([np.random.choice(dice) for _ in range(n_rolls)])
+
+# Second roll
+second_rolls = np.array([np.random.choice(dice) for _ in range(n_rolls)])
+
+# Sum both rolls (vectorized operation)
+sum_of_rolls = first_rolls + second_rolls
+
+print(f"Mean of sum: {np.mean(sum_of_rolls):.2f}")
+print(f"Variance of sum: {np.var(sum_of_rolls):.2f}")
+print(f"Covariance:\n{np.cov(first_rolls, second_rolls)}")
+
+# Plot histogram
+sns.histplot(sum_of_rolls, stat="probability", discrete=True)
+plt.title("Sum of Two Dice Rolls")
+plt.show()
+```
+
+<Accordion title="Why is Covariance Near Zero?">
+  The two rolls are **independent** - the result of the first roll doesn't affect the second. Therefore, covariance is approximately zero.
+</Accordion>
+
+### Loaded Dice
+
+Simulate unfair dice where one side has higher probability:
+
+```python
+def load_dice(n_sides, loaded_number):
+    # Equal initial probabilities
+    probs = np.array([1/(n_sides+1) for _ in range(n_sides)])
+    
+    # Double probability for loaded side
+    probs[loaded_number-1] = 1 - sum(probs[:-1])
+    
+    # Verify probabilities sum to 1
+    assert np.isclose(sum(probs), 1), "Probabilities must sum to 1"
+    
+    return probs
+
+# Get probabilities for dice loaded toward side 2
+probs_loaded = load_dice(6, loaded_number=2)
+
+# Visualize probabilities
+sns.barplot(x=dice, y=probs_loaded)
+plt.title("Loaded Dice Probabilities")
+plt.ylim(0, 0.5)
+plt.show()
+```
+
+<Tabs>
+  <Tab title="Fair Dice">
+    ```python
+    # All sides have equal probability
+    probs_fair = np.array([1/6] * 6)
+    ```
+  </Tab>
+  
+  <Tab title="Loaded Dice">
+    ```python
+    # Use loaded probabilities
+    rolls = np.array([
+        np.random.choice(dice, p=probs_loaded) 
+        for _ in range(20_000)
+    ])
+    ```
+  </Tab>
+</Tabs>
+
+### Dependent Rolls
+
+Simulate scenarios where the second roll depends on the first:
+
+```python
+n_rolls = 20_000
+
+first_rolls = np.array([np.random.choice(dice) for _ in range(n_rolls)])
+second_rolls = np.array([np.random.choice(dice) for _ in range(n_rolls)])
+
+# Only count second roll if first roll >= 4
+second_rolls = np.where(first_rolls >= 4, second_rolls, 0)
+
+sum_of_rolls = first_rolls + second_rolls
+
+print(f"Covariance:\n{np.cov(first_rolls, second_rolls)}")
+
+sns.histplot(sum_of_rolls, stat="probability", discrete=True)
+plt.title("Dependent Dice Rolls")
+plt.show()
+```
+
+<Note>
+  Now covariance is not zero! The second roll depends on the first, creating correlation.
+</Note>
+
+## The Birthday Problem
+
+### Introduction
+
+The Birthday Paradox demonstrates how counter-intuitive probabilities can be. You'll explore four variations:
+
+1. Matching a predefined date
+2. Matching a randomly selected person's birthday
+3. Any two people sharing a birthday
+4. Matching between two classrooms
+
+<Info>
+  All problems ask: What's the minimum number of people `n` needed for at least 50% probability of a match?
+</Info>
+
+### Problem 1: Matching a Predefined Date
+
+**Question**: How many people needed so probability of someone matching a specific date ≥ 0.5?
+
+<Steps>
+  <Step title="Create Simulation Function">
+    ```python
+    def simulate(problem_func, n_students=365, n_simulations=1000):
+        matches = 0
+        
+        for _ in range(n_simulations):
+            if problem_func(n_students):
+                matches += 1
+        
+        return matches / n_simulations
+    ```
+  </Step>
+  
+  <Step title="Model Problem 1">
+    ```python
+    def problem_1(n_students):
+        # Predefined birthday
+        predef_bday = np.random.randint(0, 365)
+        
+        # Generate student birthdays
+        gen_bdays = np.random.randint(0, 365, n_students)
+        
+        # Check if predefined birthday matches any student
+        return predef_bday in gen_bdays
+    ```
+  </Step>
+  
+  <Step title="Run Simulation">
+    ```python
+    n = 253
+    prob = simulate(problem_1, n_students=n, n_simulations=10_000)
+    print(f"Probability with {n} students: {prob:.3f}")
+    ```
+  </Step>
+</Steps>
+
+#### Analytical Solution
+
+Let $P(n)$ be the probability at least one student matches predefined day $D$.
+
+For one student: $P(S_i^c) = 1 - \frac{1}{365}$ (doesn't match)
+
+For $n$ independent students:
+
+$$P(n) = 1 - \left(1 - \frac{1}{365}\right)^n$$
+
+For $P(n) \geq 0.5$:
+
+$$n \geq \frac{\ln(2)}{\ln(365/364)} \approx 253$$
+
+<Tip>
+  You need 253 people for a 50% chance of matching a specific date!
+</Tip>
+
+### Problem 2: Matching a Random Person
+
+**Question**: Pick a random person, then find how many others needed for 50% match probability?
+
+```python
+def problem_2(n_students):
+    # Generate birthdays
+    gen_bdays = np.random.randint(0, 365, n_students)
+    
+    # Pick random student
+    rnd_index = np.random.randint(0, len(gen_bdays))
+    rnd_bday = gen_bdays[rnd_index]
+    
+    # Remove selected student
+    remaining_bdays = np.delete(gen_bdays, rnd_index)
+    
+    # Check for match
+    return rnd_bday in remaining_bdays
+```
+
+#### Analytical Solution
+
+Similar to Problem 1, but with $n-1$ remaining students:
+
+$$P(n) = 1 - \left(1 - \frac{1}{365}\right)^{n-1}$$
+
+Answer: $n \geq 254$
+
+### Problem 3: Any Two People Matching
+
+**Question**: How many people needed for 50% probability that ANY two share a birthday?
+
+<Note>
+  This is the famous Birthday Paradox! The answer is surprisingly small.
+</Note>
+
+```python
+def problem_3(n_students):
+    # Generate birthdays
+    gen_bdays = np.random.randint(0, 365, n_students)
+    
+    # Get unique birthdays
+    unique_bdays = np.array(list(set(gen_bdays)))
+    
+    # Match exists if unique count < total count
+    return len(unique_bdays) != len(gen_bdays)
+```
+
+#### Analytical Solution
+
+Let $Q$ be the probability NO two people match:
+
+$$Q = 1 \cdot \frac{364}{365} \cdot \frac{363}{365} \cdots \frac{365-(n-1)}{365}$$
+
+Desired probability: $P = 1 - Q$
+
+Using approximation $1 - x \approx e^{-x}$:
+
+$$Q \approx e^{-\frac{n(n-1)}{730}}$$
+
+For $P \geq 0.5$:
+
+$$n(n-1) \geq 730 \ln(2) \approx 505$$
+
+Solving: $n \geq 23$
+
+<Tip>
+  Only **23 people** needed for a 50% chance that two share a birthday! This surprises most people.
+</Tip>
+
+### Problem 4: Two Classrooms
+
+**Question**: Two classrooms with $n$ people each. Probability of match between classrooms ≥ 0.5?
+
+```python
+def problem_4(n_students):
+    # Generate birthdays for classroom 1
+    gen_bdays_1 = np.random.randint(0, 365, n_students)
+    
+    # Generate birthdays for classroom 2
+    gen_bdays_2 = np.random.randint(0, 365, n_students)
+    
+    # Check for any match between classrooms
+    return np.isin(gen_bdays_1, gen_bdays_2).any()
+```
+
+#### Analytical Solution
+
+$$P(n) \approx 1 - e^{-\frac{n^2}{365}}$$
+
+For $P(n) \geq 0.5$:
+
+$$n \geq \sqrt{\ln(2) \cdot 365} \approx 16$$
+
+<Info>
+  You need only 16 people per classroom for a 50% match probability!
+</Info>
+
+## The Monty Hall Problem
+
+### Problem Setup
+
+You're on a game show with three doors. One has a car, two have goats.
+
+<Steps>
+  <Step title="Choose a Door">
+    You select one of the three doors (but don't open it).
+  </Step>
+  
+  <Step title="Host Opens a Door">
+    The host (who knows where the car is) opens one of the remaining doors, revealing a goat.
+  </Step>
+  
+  <Step title="Make Your Decision">
+    Do you **switch** to the other unopened door or **stay** with your original choice?
+  </Step>
+</Steps>
+
+<Note>
+  This seems like a 50/50 choice, but it's not! One strategy is significantly better.
+</Note>
+
+### Simulation
+
+```python
+def monty_hall(switch):
+    # All doors have goats initially
+    doors = np.array([0, 0, 0])  # 0 = goat, 1 = car
+    
+    # Randomly place car
+    winner_index = np.random.randint(0, 3)
+    doors[winner_index] = 1
+    
+    # Player chooses door
+    choice = np.random.randint(0, 3)
+    
+    # Host can open any door except choice and winner
+    openable_doors = [i for i in range(3) if i not in (winner_index, choice)]
+    door_to_open = np.random.choice(openable_doors)
+    
+    # If switching, pick the other unopened door
+    if switch:
+        choice = [i for i in range(3) if i not in (choice, door_to_open)][0]
+    
+    # Return 1 if won, 0 if lost
+    return doors[choice]
+```
+
+Run many simulations:
+
+```python
+# Simulate staying strategy
+stay_wins = sum([monty_hall(switch=False) for _ in range(10000)])
+stay_rate = stay_wins / 10000
+
+# Simulate switching strategy
+switch_wins = sum([monty_hall(switch=True) for _ in range(10000)])
+switch_rate = switch_wins / 10000
+
+print(f"Stay win rate: {stay_rate:.3f}")
+print(f"Switch win rate: {switch_rate:.3f}")
+```
+
+### Analytical Solution
+
+Define events:
+- $E_i$: Car is behind door $i$ (for $i = 1, 2, 3$)
+- Initially: $P(E_1) = P(E_2) = P(E_3) = \frac{1}{3}$
+
+**If you stay**: $P(win) = \frac{1}{3}$ (your initial choice)
+
+**If you switch**:
+
+Assume you chose door 1. Then:
+- $P(E_1) = \frac{1}{3}$ (car behind your door)
+- $P(E_1^c) = P(E_2 \cup E_3) = \frac{2}{3}$ (car behind other doors)
+
+When host opens door 3 (revealing goat):
+- $P(E_3) = 0$ (definitely not there)
+- $P(E_2 \cup E_3) = \frac{2}{3}$ still holds
+- Since $E_2$ and $E_3$ are mutually exclusive: $P(E_2) = \frac{2}{3}$
+
+Therefore: **Switching gives $\frac{2}{3} \approx 0.67$ win probability!**
+
+<Tip>
+  Always switch! You double your chances of winning from 33% to 67%.
+</Tip>
+
+### Generalized Monty Hall
+
+With $n$ doors and host opens $k$ doors:
+
+```python
+def generalized_monty_hall(switch, n=3, k=1):
+    assert 0 <= k <= n-2, "k must be between 0 and n-2"
+    
+    doors = np.array([0] * n)
+    winner = np.random.randint(0, n)
+    doors[winner] = 1
+    
+    choice = np.random.randint(0, n)
+    
+    openable_doors = [i for i in range(n) if i not in (winner, choice)]
+    doors_to_open = np.random.choice(openable_doors, size=k, replace=False)
+    
+    if switch:
+        choices = [i for i in range(n) 
+                  if i != choice and i not in doors_to_open]
+        choice = np.random.choice(choices)
+    
+    return doors[choice]
+```
+
+**Analytical result**:
+
+$$P(win | switch) = \frac{n-1}{n} \cdot \frac{1}{n-k-1}$$
+
+Switching is always better unless $k = 0$ (host opens no doors).
+
+## Summary Statistics Aren't Everything
+
+Using the famous **Anscombe's Quartet** and **Datasaurus Dozen** datasets:
+
+```python
+import pandas as pd
+
+# Load Anscombe's quartet
+df_anscombe = pd.read_csv('df_anscombe.csv')
+
+# Check statistics by group
+df_anscombe.groupby('group').describe()
+
+# Check correlation
+df_anscombe.groupby('group').corr()
+```
+
+<Info>
+  All four groups have nearly identical means, standard deviations, and correlations. But are they really the same?
+</Info>
+
+Visualize the data:
+
+```python
+import seaborn as sns
+
+sns.pairplot(df_anscombe, hue='group')
+plt.show()
+```
+
+**Revelation**: The groups are completely different:
+1. Linear relationship
+2. Non-linear (quadratic) relationship
+3. Linear with outlier
+4. Vertical pattern with outlier
+
+<Note>
+  This demonstrates that summary statistics alone can be misleading. **Always visualize your data!**
+</Note>
+
+## Key Takeaways
+
+<CardGroup cols={2}>
+  <Card title="Simulations" icon="flask">
+    Use NumPy to validate analytical solutions and build intuition.
+  </Card>
+  
+  <Card title="Counter-Intuitive Results" icon="lightbulb">
+    Probability often defies intuition. Verify with math and code.
+  </Card>
+  
+  <Card title="Independence Matters" icon="shuffle">
+    Covariance reveals dependence between random variables.
+  </Card>
+  
+  <Card title="Visualize Everything" icon="chart-simple">
+    Summary statistics can hide important patterns.
+  </Card>
+</CardGroup>

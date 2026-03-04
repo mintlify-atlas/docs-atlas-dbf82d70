@@ -1,0 +1,496 @@
+---
+title: Neural Network Training
+description: Learn how to train neural networks using TensorFlow, including loss functions, gradient descent, and backpropagation
+---
+
+Welcome to neural network training! Last week you learned how to carry out inference in a neural network. This week, we'll cover how to train a neural network on your own data.
+
+<Info>
+Being able to take your own data and train your own neural network is a powerful and exciting capability. Let's dive in!
+</Info>
+
+## Training Overview
+
+Let's continue with the handwritten digit recognition example - recognizing an image as 0 or 1.
+
+### Network Architecture
+
+- **Input**: Image pixels (X)
+- **Layer 1**: 25 units with sigmoid activation
+- **Layer 2**: 15 units with sigmoid activation  
+- **Output**: 1 unit with sigmoid activation
+
+Given a training set of images X with ground truth labels Y, how do you train the parameters of this neural network?
+
+## TensorFlow Training Code
+
+Here's the complete code to train a neural network in TensorFlow:
+
+<Steps>
+
+### Step 1: Build the Model
+
+```python
+import tensorflow as tf
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense
+
+# Create the model architecture
+model = Sequential([
+    Dense(units=25, activation='sigmoid'),  # First hidden layer
+    Dense(units=15, activation='sigmoid'),  # Second hidden layer
+    Dense(units=1, activation='sigmoid')    # Output layer
+])
+```
+
+
+
+<Note>
+This step is familiar from the inference section - you're specifying the layers and their configurations.
+</Note>
+
+### Step 2: Compile the Model
+
+```python
+# Specify the loss function
+model.compile(
+    loss='binary_crossentropy',
+    optimizer='adam'
+)
+```
+
+
+
+<Tip>
+The key part of compilation is specifying the loss function. Binary crossentropy is the standard loss for binary classification problems.
+</Tip>
+
+### Step 3: Train the Model
+
+```python
+# Fit the model to the data
+model.fit(X, Y, epochs=100)
+```
+
+
+
+This tells TensorFlow to fit the model using the specified loss function to your dataset X and Y.
+
+</Steps>
+
+## Understanding Training: Comparison with Logistic Regression
+
+To understand neural network training, let's first recall logistic regression training from the previous course.
+
+### Logistic Regression Training Steps
+
+<Steps>
+
+### Specify the Model
+
+Define how to compute output given input:
+
+```python
+# Logistic regression prediction
+f(x) = g(w · x + b)
+
+# Where g is the sigmoid function
+g(z) = 1 / (1 + e^(-z))
+```
+
+
+
+### Define Loss and Cost Functions
+
+**Loss function** (single training example):
+
+```python
+L(f(x), y) = -y * log(f(x)) - (1 - y) * log(1 - f(x))
+```
+
+**Cost function** (average over all examples):
+
+```python
+J(w, b) = (1/m) * Σ L(f(x^(i)), y^(i))
+```
+
+
+
+<Info>
+- **Loss function**: Measures error on a single training example
+- **Cost function**: Average loss over the entire training set
+</Info>
+
+### Train Using Gradient Descent
+
+Update parameters to minimize cost:
+
+```python
+# Gradient descent update
+w = w - α * ∂J/∂w
+b = b - α * ∂J/∂b
+```
+
+
+
+</Steps>
+
+## Neural Network Training Steps
+
+Training a neural network follows the same three steps:
+
+### Step 1: Specify the Model
+
+Define the neural network architecture:
+
+```python
+model = Sequential([
+    Dense(25, activation='sigmoid'),
+    Dense(15, activation='sigmoid'),
+    Dense(1, activation='sigmoid')
+])
+```
+
+This specifies:
+- How many layers
+- How many neurons per layer  
+- What activation functions to use
+- How to compute output given input and parameters
+
+
+
+### Step 2: Specify Loss and Cost
+
+For binary classification, use binary crossentropy:
+
+```python
+model.compile(loss='binary_crossentropy')
+```
+
+**Binary Crossentropy Loss**:
+
+```python
+L(f(x), y) = -y * log(f(x)) - (1 - y) * log(1 - f(x))
+```
+
+This is the same loss function as logistic regression!
+
+
+
+<Accordion title="Why Binary Crossentropy?">
+Binary crossentropy (also called logistic loss) is ideal for binary classification because:
+- It heavily penalizes confident wrong predictions
+- It provides smooth gradients for optimization
+- It's theoretically derived from maximum likelihood estimation
+</Accordion>
+
+**Cost Function**:
+
+```python
+J(W, B) = (1/m) * Σ L(f(x^(i)), y^(i))
+```
+
+Average the loss over all m training examples.
+
+
+
+### Step 3: Train Using Gradient Descent
+
+```python
+model.fit(X, Y, epochs=100)
+```
+
+This executes gradient descent:
+1. Compute gradients of cost with respect to all parameters
+2. Update parameters: `W = W - α * ∂J/∂W`
+3. Repeat for specified number of epochs
+
+
+
+<Tip>
+An **epoch** is one complete pass through the entire training dataset. Training for 100 epochs means the algorithm sees each example 100 times.
+</Tip>
+
+## Backpropagation Algorithm
+
+The key to neural network training is computing gradients efficiently using **backpropagation**.
+
+<Note>
+Backpropagation computes the gradient of the loss function with respect to each parameter by applying the chain rule from calculus. TensorFlow handles this automatically!
+</Note>
+
+### What Backpropagation Does
+
+<Steps>
+
+### Forward Pass
+Compute outputs layer by layer from input to output
+
+### Compute Loss
+Calculate the error between prediction and actual label
+
+### Backward Pass
+Propagate the error backward through the network
+
+### Compute Gradients
+Calculate ∂J/∂W and ∂J/∂B for each layer
+
+### Update Parameters
+Adjust weights and biases using gradient descent
+
+</Steps>
+
+## Different Loss Functions
+
+Depending on your problem, you might use different loss functions:
+
+<Tabs>
+  <Tab title="Binary Classification">
+    ```python
+    # Binary crossentropy for 2 classes
+    model.compile(loss='binary_crossentropy')
+    ```
+    Use when: Output is 0 or 1 (binary classification)
+  </Tab>
+  <Tab title="Regression">
+    ```python
+    # Mean squared error for regression
+    model.compile(loss='mean_squared_error')
+    ```
+    Use when: Predicting continuous values
+  </Tab>
+  <Tab title="Multi-class Classification">
+    ```python
+    # Categorical crossentropy for multiple classes
+    model.compile(loss='categorical_crossentropy')
+    ```
+    Use when: Output is one of many classes
+  </Tab>
+</Tabs>
+
+## Complete Training Example
+
+Here's a complete example for the digit classification problem:
+
+```python
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense
+
+# Prepare training data
+X = np.array([...])  # Image pixel values
+Y = np.array([...])  # Labels (0 or 1)
+
+# Build model
+model = Sequential([
+    Dense(25, activation='sigmoid', input_shape=(784,)),
+    Dense(15, activation='sigmoid'),
+    Dense(1, activation='sigmoid')
+])
+
+# Compile model
+model.compile(
+    loss='binary_crossentropy',
+    optimizer='adam',
+    metrics=['accuracy']
+)
+
+# Train model
+history = model.fit(
+    X, Y,
+    epochs=100,
+    batch_size=32,
+    validation_split=0.2,
+    verbose=1
+)
+
+# Evaluate model
+test_loss, test_accuracy = model.evaluate(X_test, Y_test)
+print(f"Test accuracy: {test_accuracy}")
+
+# Make predictions
+predictions = model.predict(X_new)
+```
+
+## Training Parameters Explained
+
+<CardGroup cols={2}>
+
+<Card title="Epochs" icon="rotate">
+  Number of complete passes through the training data
+</Card>
+
+<Card title="Batch Size" icon="layer-group">
+  Number of examples processed before updating parameters
+</Card>
+
+<Card title="Learning Rate" icon="gauge">
+  Step size for parameter updates (controlled by optimizer)
+</Card>
+
+<Card title="Validation Split" icon="chart-line">
+  Fraction of data reserved for validation during training
+</Card>
+
+</CardGroup>
+
+## Monitoring Training Progress
+
+TensorFlow provides tools to monitor training:
+
+```python
+# Training with validation
+history = model.fit(
+    X_train, Y_train,
+    epochs=100,
+    validation_data=(X_val, Y_val),
+    verbose=1
+)
+
+# Plot training history
+import matplotlib.pyplot as plt
+
+plt.plot(history.history['loss'], label='Training Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
+```
+
+<Tip>
+Monitoring validation loss helps detect overfitting. If training loss decreases but validation loss increases, your model is overfitting.
+</Tip>
+
+## Common Training Issues
+
+<Accordion title="Model Not Learning">
+  **Symptoms**: Loss stays constant or decreases very slowly
+  
+  **Solutions**:
+  - Increase learning rate
+  - Check data preprocessing
+  - Verify labels are correct
+  - Try different initialization
+</Accordion>
+
+<Accordion title="Overfitting">
+  **Symptoms**: Training accuracy high, validation accuracy low
+  
+  **Solutions**:
+  - Add more training data
+  - Use dropout or regularization
+  - Reduce model complexity
+  - Use early stopping
+</Accordion>
+
+<Accordion title="Underfitting">
+  **Symptoms**: Both training and validation accuracy are low
+  
+  **Solutions**:
+  - Increase model complexity
+  - Train for more epochs
+  - Reduce regularization
+  - Check for bugs in data pipeline
+</Accordion>
+
+## Optimizers in TensorFlow
+
+TensorFlow offers several optimization algorithms:
+
+```python
+# Adam optimizer (most common)
+model.compile(
+    loss='binary_crossentropy',
+    optimizer='adam'
+)
+
+# SGD with momentum
+model.compile(
+    loss='binary_crossentropy',
+    optimizer=tf.keras.optimizers.SGD(learning_rate=0.01, momentum=0.9)
+)
+
+# RMSprop
+model.compile(
+    loss='binary_crossentropy',
+    optimizer=tf.keras.optimizers.RMSprop(learning_rate=0.001)
+)
+```
+
+<Info>
+**Adam** is usually the best starting point. It combines the benefits of momentum and adaptive learning rates.
+</Info>
+
+## Best Practices
+
+<Steps>
+
+### Normalize Your Data
+Scale input features to similar ranges (e.g., 0-1 or standardize)
+
+### Use Appropriate Batch Sizes
+Typical values: 32, 64, 128, or 256
+
+### Monitor Validation Metrics
+Always evaluate on a held-out validation set
+
+### Save Checkpoints
+Save model weights periodically during training
+
+### Use Early Stopping
+Stop training when validation performance stops improving
+
+</Steps>
+
+## Early Stopping Example
+
+```python
+from tensorflow.keras.callbacks import EarlyStopping
+
+# Define early stopping
+early_stop = EarlyStopping(
+    monitor='val_loss',
+    patience=10,
+    restore_best_weights=True
+)
+
+# Train with early stopping
+model.fit(
+    X_train, Y_train,
+    epochs=1000,
+    validation_data=(X_val, Y_val),
+    callbacks=[early_stop]
+)
+```
+
+<Tip>
+Early stopping automatically stops training when the model stops improving, preventing overfitting and saving time.
+</Tip>
+
+## Summary
+
+Neural network training involves three key steps:
+
+1. **Specify the model**: Define architecture with layers and activations
+2. **Choose loss function**: Binary crossentropy for classification, MSE for regression
+3. **Train with gradient descent**: Use backpropagation to compute gradients
+
+TensorFlow automates the complex mathematics of backpropagation, letting you focus on model architecture and hyperparameters.
+
+## Next Steps
+
+Now that you understand neural network training:
+
+- Experiment with different architectures
+- Try various loss functions and optimizers
+- Practice with real datasets
+- Learn about regularization techniques
+- Explore advanced architectures (CNNs, RNNs)
+
+<Note>
+The ability to debug and improve your models comes from understanding what's happening under the hood. Even when using high-level APIs, this knowledge is invaluable.
+</Note>
+
+Congratulations! You now have the complete foundation for building, training, and deploying neural networks!

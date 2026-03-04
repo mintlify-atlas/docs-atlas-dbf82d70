@@ -1,122 +1,107 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Mindect",
+  "theme": "almond",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#22bdd5",
+    "light": "#553483",
+    "dark": "#22bdd5"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "https://media.brand.dev/4882d163-ca1b-439c-ac5e-8096b67751a3.png",
+  "logo": {
+    "light": "https://media.brand.dev/4882d163-ca1b-439c-ac5e-8096b67751a3.png",
+    "dark": "https://media.brand.dev/4882d163-ca1b-439c-ac5e-8096b67751a3.png"
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/gitstar-oc/mindect"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/gitstar-oc/mindect"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get Started",
             "pages": [
-              "index",
+              "introduction",
               "quickstart",
-              "development"
+              "jupyter-notebook"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Supervised Learning",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "supervised-learning/overview",
+              "supervised-learning/regression-model",
+              "supervised-learning/gradient-descent",
+              "supervised-learning/multiple-linear-regression",
+              "supervised-learning/logistic-regression",
+              "supervised-learning/overfitting"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Unsupervised Learning",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "unsupervised-learning/overview",
+              "unsupervised-learning/clustering",
+              "unsupervised-learning/anomaly-detection"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Advanced Learning Algorithms",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "advanced-algorithms/overview",
+              "advanced-algorithms/neural-networks",
+              "advanced-algorithms/tensorflow-implementation",
+              "advanced-algorithms/vectorization",
+              "advanced-algorithms/neural-network-training"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Mathematics",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Linear Algebra",
             "pages": [
-              "api-reference/introduction"
+              "mathematics/algebra/overview",
+              "mathematics/algebra/numpy-arrays",
+              "mathematics/algebra/linear-systems",
+              "mathematics/algebra/matrix-operations",
+              "mathematics/algebra/linear-transformations",
+              "mathematics/algebra/eigenvalues-eigenvectors"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Calculus",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "mathematics/calculus/overview",
+              "mathematics/calculus/differentiation",
+              "mathematics/calculus/gradient-descent-optimization",
+              "mathematics/calculus/perceptron-regression",
+              "mathematics/calculus/perceptron-classification"
+            ]
+          },
+          {
+            "group": "Probability & Statistics",
+            "pages": [
+              "mathematics/probability/overview",
+              "mathematics/probability/exploratory-data-analysis",
+              "mathematics/probability/data-visualization",
+              "mathematics/probability/statistical-problems"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

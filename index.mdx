@@ -1,97 +1,178 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Welcome to Mindect"
+mode: "custom"
 ---
 
-## Setting up
+<div className="relative overflow-hidden bg-gradient-to-br from-[#22bdd5] via-[#553483] to-[#22bdd5] dark:bg-gradient-to-br dark:from-[#1a9db5] dark:via-[#442870] dark:to-[#1a9db5] py-20">
+  <div className="max-w-6xl mx-auto px-6 lg:px-8">
+    <div className="text-center">
+      <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+        Master AI, ML, and Deep Learning
+      </h1>
+      <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto mb-8">
+        A comprehensive learning platform with interactive tutorials, hands-on examples, and mathematical foundations to help you build expertise in artificial intelligence and machine learning.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
+        <a
+          href="/quickstart"
+          className="inline-flex items-center px-6 py-3 rounded-lg bg-white text-[#22bdd5] font-semibold hover:bg-gray-100 transition-colors"
+        >
+          Get Started
+        </a>
+        <a
+          href="/supervised-learning/overview"
+          className="inline-flex items-center px-6 py-3 rounded-lg border-2 border-white/30 bg-white/10 text-white font-semibold hover:bg-white/20 transition-colors"
+        >
+          Explore Learning Paths
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
-Get your documentation site up and running in minutes.
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+    Quick start
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Get up and running with Mindect in minutes
+  </p>
+  
+  <Steps>
+    <Step title="Choose your learning path">
+      Explore our comprehensive tutorials in Supervised Learning, Unsupervised Learning, or Advanced Algorithms. Each path is designed to build your knowledge progressively.
+      
+      <Info>All content is beginner-friendly with clear explanations and real-world examples.</Info>
+    </Step>
+    
+    <Step title="Set up your environment">
+      Install Jupyter Notebook to follow along with interactive code examples and experiments.
+      
+      ```bash
+      pip install notebook
+      jupyter notebook
+      ```
+      
+      Learn more in our [Jupyter Notebook setup guide](/jupyter-notebook).
+    </Step>
+    
+    <Step title="Start learning">
+      Begin with our [Introduction](/introduction) to understand machine learning fundamentals, then dive into specific topics based on your interests and goals.
+    </Step>
+  </Steps>
+</div>
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
-  </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+    Explore by topic
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Comprehensive coverage of AI, ML, and mathematical foundations
+  </p>
+  
+  <CardGroup cols={3}>
     <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
+      title="Supervised Learning"
+      icon="chart-line"
+      href="/supervised-learning/overview"
+    >
+      Learn regression, classification, gradient descent, and how to build predictive models with labeled data.
+    </Card>
+    <Card
+      title="Unsupervised Learning"
+      icon="diagram-project"
+      href="/unsupervised-learning/overview"
+    >
+      Discover clustering algorithms, anomaly detection, and pattern recognition in unlabeled datasets.
+    </Card>
+    <Card
+      title="Neural Networks"
+      icon="brain"
+      href="/advanced-algorithms/neural-networks"
+    >
+      Explore deep learning, neural network architectures, backpropagation, and modern AI techniques.
+    </Card>
+    <Card
+      title="Linear Algebra"
+      icon="grid"
+      href="/mathematics/algebra/overview"
+    >
+      Master vectors, matrices, eigenvalues, and the mathematical foundations essential for ML.
+    </Card>
+    <Card
+      title="Calculus"
+      icon="function"
+      href="/mathematics/calculus/overview"
+    >
+      Understand differentiation, optimization, gradient descent, and the calculus behind learning algorithms.
+    </Card>
+    <Card
+      title="Probability & Statistics"
+      icon="chart-simple"
+      href="/mathematics/probability/overview"
+    >
+      Learn data analysis, statistical inference, distributions, and how to work with uncertainty.
+    </Card>
+  </CardGroup>
+</div>
 
-## Create beautiful pages
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+    Why Mindect?
+  </h2>
+  <p className="text-base text-gray-600 dark:text-gray-400 mb-8">
+    Everything you need to master machine learning and AI
+  </p>
+  
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="p-6 rounded-lg border border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#1a1d27]">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Hands-on Learning
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Interactive Jupyter Notebook examples with real code you can run and modify to deepen your understanding.
+      </p>
+    </div>
+    <div className="p-6 rounded-lg border border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#1a1d27]">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Mathematical Foundations
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Learn the linear algebra, calculus, and statistics that underpin modern machine learning algorithms.
+      </p>
+    </div>
+    <div className="p-6 rounded-lg border border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#1a1d27]">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Progressive Difficulty
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Content is organized from beginner-friendly to advanced, so you can learn at your own pace.
+      </p>
+    </div>
+    <div className="p-6 rounded-lg border border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#1a1d27]">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        Real-world Applications
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Practical examples and use cases that show how ML techniques solve real problems.
+      </p>
+    </div>
+  </div>
+</div>
 
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="p-8 rounded-2xl border-2 border-[#22bdd5] dark:border-[#1a9db5] bg-gradient-to-br from-[#22bdd5]/5 to-[#553483]/5 dark:from-[#1a9db5]/10 dark:to-[#442870]/10 text-center">
+    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+      Ready to start your AI journey?
+    </h2>
+    <p className="text-base text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
+      Begin with our quickstart guide and learn the fundamentals of machine learning with hands-on examples.
+    </p>
+    <a
+      href="/quickstart"
+      className="inline-flex items-center px-6 py-3 rounded-lg bg-[#22bdd5] text-white font-semibold hover:bg-[#1a9db5] transition-colors"
+    >
+      Start Learning Now
+    </a>
+  </div>
+</div>

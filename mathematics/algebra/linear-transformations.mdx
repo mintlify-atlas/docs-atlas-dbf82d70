@@ -1,0 +1,557 @@
+---
+title: Linear Transformations
+description: Master linear transformations, understand their matrix representations, and explore applications in computer graphics and image processing.
+---
+
+## Introduction
+
+A **linear transformation** is a function between vector spaces that preserves vector addition and scalar multiplication. Linear transformations are fundamental to understanding how matrices manipulate geometric objects and are essential in computer graphics, machine learning, and data science.
+
+## Setup
+
+Import required packages:
+
+```python
+import numpy as np
+import cv2  # OpenCV for image transformations
+import matplotlib.pyplot as plt
+```
+
+## Understanding Transformations
+
+### What is a Transformation?
+
+A **transformation** is a function from one vector space to another that respects the underlying linear structure. 
+
+**Notation**: $T: \mathbb{R}^2 \rightarrow \mathbb{R}^3$
+
+- $T$ is the transformation
+- $\mathbb{R}^2$ is the input space
+- $\mathbb{R}^3$ is the output space
+- $T(v) = w$ means "$w$ is the image of $v$ under transformation $T$"
+
+### Example Transformation
+
+Consider $T: \mathbb{R}^2 \rightarrow \mathbb{R}^3$ defined by:
+
+$$
+T\begin{pmatrix}
+\begin{bmatrix}
+v_1 \\
+v_2
+\end{bmatrix}
+\end{pmatrix}=
+\begin{bmatrix}
+3v_1 \\
+0 \\
+-2v_2
+\end{bmatrix}
+$$
+
+Implementation in Python:
+
+```python
+def T(v):
+    w = np.zeros((3, 1))
+    w[0, 0] = 3 * v[0, 0]
+    w[2, 0] = -2 * v[1, 0]
+    return w
+
+v = np.array([[3], [5]])
+w = T(v)
+
+print("Original vector:\n", v)
+print("\nResult of transformation:\n", w)
+# Output:
+# Original vector:
+#  [[3]
+#   [5]]
+# Result of transformation:
+#  [[  9.]
+#   [  0.]
+#   [-10.]]
+```
+
+## Linear Transformations
+
+### Definition
+
+A transformation $T$ is **linear** if it satisfies two properties:
+
+<Steps>
+  <Step title="Scalar Multiplication Property">
+    $T(kv) = kT(v)$ for any scalar $k$ and vector $v$
+  </Step>
+  <Step title="Addition Property">
+    $T(u+v) = T(u) + T(v)$ for any vectors $u$ and $v$
+  </Step>
+</Steps>
+
+### Verification Example
+
+Prove that the transformation $T$ above is linear:
+
+**Property 1: Scalar Multiplication**
+
+$$
+T(kv) = T\begin{pmatrix}
+\begin{bmatrix}
+kv_1 \\
+kv_2
+\end{bmatrix}
+\end{pmatrix} = 
+\begin{bmatrix}
+3kv_1 \\
+0 \\
+-2kv_2
+\end{bmatrix} =
+k\begin{bmatrix}
+3v_1 \\
+0 \\
+-2v_2
+\end{bmatrix} = kT(v)
+$$
+
+**Property 2: Vector Addition**
+
+$$
+T(u+v) = 
+\begin{bmatrix}
+3(u_1+v_1) \\
+0 \\
+-2(u_2+v_2)
+\end{bmatrix} = 
+\begin{bmatrix}
+3u_1 \\
+0 \\
+-2u_2
+\end{bmatrix} +
+\begin{bmatrix}
+3v_1 \\
+0 \\
+-2v_2
+\end{bmatrix} = T(u)+T(v)
+$$
+
+### Testing in Python
+
+```python
+u = np.array([[1], [-2]])
+v = np.array([[2], [4]])
+k = 7
+
+# Test property 1
+print("T(k*v):\n", T(k*v))
+print("k*T(v):\n", k*T(v))
+
+# Test property 2
+print("\nT(u+v):\n", T(u+v))
+print("T(u)+T(v):\n", T(u)+T(v))
+```
+
+<Info>
+Common linear transformations include rotations, reflections, scaling (dilations), shearing, and projections.
+</Info>
+
+## Matrix Representation of Linear Transformations
+
+### Key Theorem
+
+Every linear transformation $L: \mathbb{R}^m \rightarrow \mathbb{R}^n$ can be represented as matrix multiplication:
+
+$$
+L(v) = Av
+$$
+
+where $A$ is an $n \times m$ matrix.
+
+### Finding the Matrix
+
+For transformation:
+
+$$
+L\begin{pmatrix}
+\begin{bmatrix}
+v_1 \\
+v_2
+\end{bmatrix}
+\end{pmatrix}=
+\begin{bmatrix}
+3v_1 \\
+0 \\
+-2v_2
+\end{bmatrix}
+$$
+
+Find matrix $A$ such that $Av$ produces this result:
+
+$$
+\begin{bmatrix}
+a_{1,1} & a_{1,2} \\
+a_{2,1} & a_{2,2} \\
+a_{3,1} & a_{3,2}
+\end{bmatrix}
+\begin{bmatrix}
+v_1 \\
+v_2
+\end{bmatrix}=
+\begin{bmatrix}
+3v_1 \\
+0 \\
+-2v_2
+\end{bmatrix}
+$$
+
+Solution:
+
+$$
+A = \begin{bmatrix}
+3 & 0 \\
+0 & 0 \\
+0 & -2
+\end{bmatrix}
+$$
+
+### Implementation
+
+```python
+def L(v):
+    A = np.array([[3, 0], 
+                  [0, 0], 
+                  [0, -2]])
+    print("Transformation matrix:\n", A, "\n")
+    w = A @ v
+    return w
+
+v = np.array([[3], [5]])
+w = L(v)
+
+print("Original vector:\n", v)
+print("\nResult of transformation:\n", w)
+```
+
+<Note>
+**Fundamental Insight**: Every linear transformation can be represented as matrix multiplication, creating a powerful connection between linear algebra and geometric transformations.
+</Note>
+
+## Standard Transformations in 2D
+
+### Understanding Standard Basis
+
+To visualize transformations, apply them to standard basis vectors:
+
+- $e_1 = \begin{bmatrix}1 \\ 0\end{bmatrix}$
+- $e_2 = \begin{bmatrix}0 \\ 1\end{bmatrix}$
+
+The transformation matrix is:
+
+$$
+A = \begin{bmatrix}L(e_1) & L(e_2)\end{bmatrix}
+$$
+
+### Example 1: Horizontal Scaling
+
+**Scale horizontally by factor of 2:**
+
+- $e_1 \rightarrow \begin{bmatrix}2 \\ 0\end{bmatrix}$
+- $e_2 \rightarrow \begin{bmatrix}0 \\ 1\end{bmatrix}$ (unchanged)
+
+```python
+def T_hscaling(v):
+    A = np.array([[2, 0], 
+                  [0, 1]])
+    w = A @ v
+    return w
+
+e1 = np.array([[1], [0]])
+e2 = np.array([[0], [1]])
+
+def transform_vectors(T, v1, v2):
+    V = np.hstack((v1, v2))
+    W = T(V)
+    return W
+
+result = transform_vectors(T_hscaling, e1, e2)
+print("Transformation result:\n", result)
+# Output:
+# [[2 0]
+#  [0 1]]
+```
+
+<Tip>
+The transformation matrix for horizontal scaling by factor $k$ is:
+$$\begin{bmatrix}k & 0 \\ 0 & 1\end{bmatrix}$$
+</Tip>
+
+### Example 2: Reflection about Y-axis
+
+**Reflect across the vertical axis:**
+
+- $e_1 \rightarrow \begin{bmatrix}-1 \\ 0\end{bmatrix}$
+- $e_2 \rightarrow \begin{bmatrix}0 \\ 1\end{bmatrix}$
+
+```python
+def T_reflection_yaxis(v):
+    A = np.array([[-1, 0], 
+                  [0, 1]])
+    w = A @ v
+    return w
+
+result = transform_vectors(T_reflection_yaxis, e1, e2)
+print("Reflection result:\n", result)
+# Output:
+# [[-1  0]
+#  [ 0  1]]
+```
+
+### Example 3: Rotation
+
+**Rotate by 90 degrees clockwise:**
+
+```python
+def T_rotation_90(v):
+    A = np.array([[0, 1], 
+                  [-1, 0]])
+    w = A @ v
+    return w
+
+result = transform_vectors(T_rotation_90, e1, e2)
+print("Rotation result:\n", result)
+```
+
+### Example 4: Shear Transformation
+
+**Shear along x-axis:**
+
+```python
+def T_shear_x(v):
+    A = np.array([[1, 0.5], 
+                  [0, 1]])
+    w = A @ v
+    return w
+
+result = transform_vectors(T_shear_x, e1, e2)
+print("Shear result:\n", result)
+# Output:
+# [[1.  0.5]
+#  [0.  1. ]]
+```
+
+<Info>
+Shear transformations displace points proportionally to their distance from a line, creating a "slanting" effect.
+</Info>
+
+## Common Transformation Matrices
+
+<Tabs>
+  <Tab title="Scaling">
+    ```python
+    # Scale by factors sx and sy
+    A_scale = np.array([[sx, 0], 
+                        [0, sy]])
+    ```
+  </Tab>
+  <Tab title="Rotation">
+    ```python
+    # Rotate by angle θ (counterclockwise)
+    A_rotate = np.array([[np.cos(θ), -np.sin(θ)], 
+                         [np.sin(θ), np.cos(θ)]])
+    ```
+  </Tab>
+  <Tab title="Reflection">
+    ```python
+    # Reflect about x-axis
+    A_reflect_x = np.array([[1, 0], 
+                            [0, -1]])
+    
+    # Reflect about y-axis
+    A_reflect_y = np.array([[-1, 0], 
+                            [0, 1]])
+    ```
+  </Tab>
+  <Tab title="Shear">
+    ```python
+    # Shear in x-direction
+    A_shear_x = np.array([[1, k], 
+                          [0, 1]])
+    
+    # Shear in y-direction
+    A_shear_y = np.array([[1, 0], 
+                          [k, 1]])
+    ```
+  </Tab>
+</Tabs>
+
+## Applications in Computer Graphics
+
+### Why Transformations Matter
+
+<CardGroup cols={2}>
+  <Card title="Efficiency" icon="gauge">
+    Generate complex shapes from basic ones through transformations
+  </Card>
+  <Card title="Performance" icon="microchip">
+    GPUs are optimized for matrix operations, enabling real-time graphics
+  </Card>
+  <Card title="Composition" icon="layer-group">
+    Combine multiple transformations by multiplying their matrices
+  </Card>
+  <Card title="Scale" icon="expand">
+    Process millions of vertices simultaneously
+  </Card>
+</CardGroup>
+
+### Image Transformation Example
+
+Apply transformations to an actual image:
+
+```python
+# Load image
+img = cv2.imread('images/leaf_original.png', 0)
+plt.imshow(img, cmap='gray')
+plt.title('Original Image')
+plt.show()
+```
+
+**Rotate 90 degrees clockwise:**
+
+```python
+image_rotated = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+plt.imshow(image_rotated, cmap='gray')
+plt.title('Rotated Image')
+plt.show()
+```
+
+**Apply shear transformation:**
+
+```python
+rows, cols = image_rotated.shape
+
+# Shear transformation matrix
+M = np.float32([[1, 0.5, 0], 
+                [0, 1, 0], 
+                [0, 0, 1]])
+
+image_rotated_sheared = cv2.warpPerspective(
+    image_rotated, M, (int(cols), int(rows))
+)
+
+plt.imshow(image_rotated_sheared, cmap='gray')
+plt.title('Rotated and Sheared Image')
+plt.show()
+```
+
+### Order of Transformations
+
+<Warning>
+**Critical Concept**: The order of transformations matters! Applying rotation then shear produces different results than shear then rotation.
+</Warning>
+
+This is because matrix multiplication is not commutative: $AB \neq BA$
+
+```python
+# Define transformation matrices
+M_rotation_90 = np.array([[0, 1], [-1, 0]])
+M_shear_x = np.array([[1, 0.5], [0, 1]])
+
+# Order 1: Rotation then Shear
+result1 = M_shear_x @ M_rotation_90
+print("Rotation then Shear:\n", result1)
+
+# Order 2: Shear then Rotation
+result2 = M_rotation_90 @ M_shear_x
+print("\nShear then Rotation:\n", result2)
+
+# They are different!
+print("\nAre they equal?", np.array_equal(result1, result2))
+# Output: False
+```
+
+### Composing Transformations
+
+Combine multiple transformations efficiently:
+
+```python
+# Individual transformations
+A_scale = np.array([[2, 0], [0, 2]])
+A_rotate = np.array([[0, -1], [1, 0]])  # 90° counterclockwise
+A_translate = np.array([[1, 0], [0, 1]])  # (simplified)
+
+# Composite transformation
+A_composite = A_rotate @ A_scale
+
+# Apply to vector
+v = np.array([[1], [0]])
+result = A_composite @ v
+print("Result of composite transformation:\n", result)
+```
+
+<Tip>
+Compose transformations by multiplying their matrices in reverse order: to apply $T_1$ then $T_2$ then $T_3$, compute $A = A_3 \cdot A_2 \cdot A_1$.
+</Tip>
+
+## Practical Exercise
+
+### Barnsley Fern Example
+
+The famous Barnsley Fern fractal uses four affine transformations applied iteratively. Each subleaf is a linear transformation of the original:
+
+```python
+# Transformation for main stem (example)
+A_stem = np.array([[0, 0], 
+                   [0, 0.16]])
+
+# Transformation for smaller leaflet (example)
+A_leaflet = np.array([[0.85, 0.04], 
+                      [-0.04, 0.85]])
+
+# Apply transformation
+point = np.array([[0], [0]])
+new_point = A_leaflet @ point
+print("Transformed point:\n", new_point)
+```
+
+<Info>
+Fractals like the Barnsley Fern demonstrate how simple linear transformations, when applied iteratively, can create complex natural patterns.
+</Info>
+
+## Summary
+
+<AccordionGroup>
+  <Accordion title="What is a Linear Transformation?">
+    - Function between vector spaces preserving addition and scalar multiplication
+    - Satisfies $T(kv) = kT(v)$ and $T(u+v) = T(u) + T(v)$
+    - Every linear transformation can be represented as matrix multiplication
+  </Accordion>
+
+  <Accordion title="Matrix Representation">
+    - Linear transformation $L: \mathbb{R}^m \rightarrow \mathbb{R}^n$ corresponds to $n \times m$ matrix
+    - Matrix columns are images of standard basis vectors
+    - $A = \begin{bmatrix}L(e_1) & L(e_2) & \cdots & L(e_m)\end{bmatrix}$
+  </Accordion>
+
+  <Accordion title="Common Transformations">
+    - **Scaling**: Stretch or shrink along axes
+    - **Rotation**: Rotate around origin
+    - **Reflection**: Mirror across a line
+    - **Shear**: Slant in a particular direction
+  </Accordion>
+
+  <Accordion title="Applications">
+    - Computer graphics and 3D rendering
+    - Image processing and computer vision
+    - Neural networks (layers as transformations)
+    - Data science (PCA, dimensionality reduction)
+  </Accordion>
+
+  <Accordion title="Key Insights">
+    - Order of transformations matters ($AB \neq BA$)
+    - Compose transformations by multiplying matrices
+    - GPUs optimize matrix operations for real-time graphics
+    - Understanding transformations is crucial for ML and CV
+  </Accordion>
+</AccordionGroup>
+
+<Card title="Next: Eigenvalues & Eigenvectors" icon="forward" href="/mathematics/algebra/eigenvalues-eigenvectors">
+  Discover special vectors that maintain their direction under transformations
+</Card>

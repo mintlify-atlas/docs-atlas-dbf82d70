@@ -1,0 +1,135 @@
+---
+title: Introduction to Unsupervised Learning
+description: Learn about unsupervised learning algorithms that find patterns and structure in unlabeled data, including clustering and anomaly detection.
+---
+
+## What is Unsupervised Learning
+
+After supervised learning, the most widely used form of machine learning is **unsupervised learning**. Unlike supervised learning where each example is associated with an output label *y*, in unsupervised learning we're given data that isn't associated with any output labels.
+
+<Note>
+In **unsupervised learning**, we're not asked to predict specific outputs. Instead, our job is to find some structure, pattern, or something interesting in the data.
+</Note>
+
+### Supervised vs Unsupervised Learning
+
+In supervised learning for classification problems, each example is labeled (e.g., benign or malignant tumors). In unsupervised learning, you might have the same data (patient tumor size and age), but without the labels indicating whether tumors are benign or malignant.
+
+<CardGroup cols={2}>
+  <Card title="Supervised Learning" icon="tags">
+    Data comes with both inputs **x** and output labels **y**
+  </Card>
+  <Card title="Unsupervised Learning" icon="magnifying-glass">
+    Data comes only with inputs **x**, algorithm finds structure automatically
+  </Card>
+</CardGroup>
+
+## Types of Unsupervised Learning
+
+Unsupervised learning encompasses several powerful techniques for discovering patterns in data:
+
+<Steps>
+  <Step title="Clustering">
+    Groups similar data points together into clusters. Used in market segmentation, document organization, and pattern discovery.
+  </Step>
+  
+  <Step title="Anomaly Detection">
+    Detects unusual events or outliers in data. Critical for fraud detection, quality control, and system monitoring.
+  </Step>
+  
+  <Step title="Dimensionality Reduction">
+    Compresses large datasets to smaller ones while preserving important information. Useful for visualization and computational efficiency.
+  </Step>
+</Steps>
+
+### Clustering Applications
+
+Clustering is a type of unsupervised learning algorithm that places unlabeled data into different clusters. This technique has numerous real-world applications:
+
+<Accordion title="Google News Article Grouping">
+  Google News uses clustering to group related stories together. Every day, it processes hundreds of thousands of news articles and automatically finds articles that mention similar words (like "panda", "twin", "zoo") and groups them into clusters.
+  
+  The clustering algorithm figures out on its own which words suggest that certain articles belong in the same group - no human tells it what to look for. This is essential because news topics change daily and there are too many stories for manual categorization.
+</Accordion>
+
+<Accordion title="DNA Microarray Analysis">
+  Researchers use clustering on genetic data to group individuals into different categories based on gene expression patterns. Each column in a DNA microarray represents one person's genetic data, and each row represents a specific gene.
+  
+  By running a clustering algorithm, researchers can automatically discover distinct types of people based on their genetic profiles, without being told in advance what these types are.
+</Accordion>
+
+<Accordion title="Market Segmentation">
+  Companies use clustering to automatically group customers into different market segments. For example, analyzing the deep learning community revealed distinct groups:
+  
+  - **Knowledge seekers**: Primary motivation is growing their skills
+  - **Career developers**: Looking for promotions or new job opportunities
+  - **Industry followers**: Want to stay updated on AI's impact on their field
+  
+  Understanding these segments helps companies better serve their customers.
+</Accordion>
+
+### Anomaly Detection Applications
+
+**Anomaly detection** algorithms look at a dataset of normal events and learn to detect unusual or anomalous events. Key applications include:
+
+<CardGroup cols={2}>
+  <Card title="Fraud Detection" icon="shield-halved">
+    Detecting unusual transactions in financial systems that could indicate fraudulent activity
+  </Card>
+  
+  <Card title="Manufacturing Quality Control" icon="industry">
+    Identifying defective products (like aircraft engines) that behave differently from normal ones
+  </Card>
+  
+  <Card title="System Monitoring" icon="chart-line">
+    Flagging unusual system behavior that might indicate failures or security breaches
+  </Card>
+  
+  <Card title="Healthcare" icon="heartbeat">
+    Detecting abnormal patient data that requires further investigation
+  </Card>
+</CardGroup>
+
+## Key Characteristics
+
+<Info>
+The fundamental difference between supervised and unsupervised learning:
+
+- **Supervised learning**: Algorithm is given "right answers" to learn from
+- **Unsupervised learning**: Algorithm discovers structure without being supervised or told what's correct
+</Info>
+
+### Why Unsupervised Learning Matters
+
+Unsupervised learning is particularly valuable when:
+
+- You have large amounts of unlabeled data
+- Manual labeling would be too expensive or time-consuming
+- You want to discover hidden patterns you didn't know existed
+- The structure of the data may change over time
+- You need to process data automatically at scale
+
+## Real-World Impact
+
+Unsupervised learning algorithms are among the most commercially important applications of machine learning. They enable:
+
+- **Automatic organization** of massive datasets
+- **Discovery of insights** not obvious to human observers
+- **Scalable processing** of data that would be impossible to manually categorize
+- **Adaptive systems** that work without constant human supervision
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Clustering" icon="object-group" href="./clustering">
+    Learn about K-means and other clustering algorithms
+  </Card>
+  
+  <Card title="Anomaly Detection" icon="triangle-exclamation" href="./anomaly-detection">
+    Discover how to detect unusual events in your data
+  </Card>
+</CardGroup>
+
+<Tip>
+While this guide focuses on clustering and anomaly detection, unsupervised learning also includes other powerful techniques like dimensionality reduction (PCA), association rules, and generative models.
+</Tip>

@@ -1,0 +1,214 @@
+---
+title: Neural Network Layers
+description: Learn how neural network layers work by constructing layers of neurons and understanding data flow
+---
+
+The fundamental building block of most modern neural networks is a layer of neurons. In this guide, you'll learn how to construct a layer of neurons, and once you have that foundation, you'll be able to put these building blocks together to form large neural networks.
+
+## Introduction to Neural Network Layers
+
+<Info>
+A neural network layer is a collection of neurons that process input data and pass their outputs to the next layer. Each neuron in a layer applies a logistic regression function to its inputs.
+</Info>
+
+## Example: Demand Prediction Neural Network
+
+Let's examine a demand prediction example with:
+- **Input layer**: 4 input features
+- **Hidden layer**: 3 neurons
+- **Output layer**: 1 neuron
+
+
+
+## Understanding the Hidden Layer
+
+Let's zoom into the hidden layer to examine its computations in detail.
+
+
+
+### How Neurons Process Input
+
+The hidden layer receives four numbers as input, and these four numbers are inputs to each of the three neurons. Each neuron implements a logistic regression unit.
+
+<Steps>
+
+### First Neuron Computation
+
+The first neuron has parameters `w_1` and `b_1`:
+
+```python
+# First neuron computation
+a_1 = g(w_1 · x + b_1)
+```
+
+Where:
+- `g(z)` is the sigmoid function: `g(z) = 1 / (1 + e^(-z))`
+- `a_1` is the activation value (e.g., 0.3)
+
+
+
+<Tip>
+An activation value of 0.3 means there's a 30% probability of affordability based on the input features.
+</Tip>
+
+### Second Neuron Computation
+
+The second neuron has parameters `w_2` and `b_2`:
+
+```python
+# Second neuron computation
+a_2 = g(w_2 · x + b_2)
+```
+
+This might output 0.7, suggesting a 70% chance that potential buyers are aware of the product.
+
+### Third Neuron Computation
+
+The third neuron follows the same pattern:
+
+```python
+# Third neuron computation
+a_3 = g(w_3 · x + b_3)
+```
+
+This might output 0.2.
+
+</Steps>
+
+
+
+## Layer Notation and Indexing
+
+<Note>
+When building neural networks with multiple layers, we need a systematic way to identify layers and their parameters.
+</Note>
+
+### Layer Numbering Convention
+
+- **Layer 0**: Input layer (sometimes implicit)
+- **Layer 1**: First hidden layer
+- **Layer 2**: Second hidden layer or output layer
+- Modern networks can have dozens or even hundreds of layers
+
+
+
+### Superscript Notation
+
+We use superscript square brackets to denote layers:
+
+```python
+# Layer 1 notation
+a^[1]  # Output of layer 1
+w_1^[1], b_1^[1]  # Parameters of first neuron in layer 1
+w_2^[1], b_2^[1]  # Parameters of second neuron in layer 1
+w_3^[1], b_3^[1]  # Parameters of third neuron in layer 1
+```
+
+<Tip>
+Whenever you see superscript `[1]`, it refers to a quantity associated with layer 1. Superscript `[2]` refers to layer 2, and so on.
+</Tip>
+
+
+
+## Output Layer Computation
+
+Now let's examine how the output layer processes the activation values from the hidden layer.
+
+### Input to Output Layer
+
+The input to layer 2 is the output of layer 1:
+
+```python
+# Layer 1 output becomes layer 2 input
+a^[1] = [0.3, 0.7, 0.2]
+```
+
+
+
+### Computing the Output
+
+Since the output layer has only one neuron:
+
+```python
+# Output layer computation
+a_1^[2] = g(w_1^[2] · a^[1] + b_1^[2])
+```
+
+This might result in a value like 0.84.
+
+<Accordion title="Understanding the sigmoid output">
+The output 0.84 represents an 84% probability that the item will be a top seller. The sigmoid function ensures the output is always between 0 and 1, making it interpretable as a probability.
+</Accordion>
+
+## Making Binary Predictions
+
+To convert the probability output to a binary prediction:
+
+```python
+# Thresholding at 0.5
+if a^[2] >= 0.5:
+    y_hat = 1  # Positive prediction
+else:
+    y_hat = 0  # Negative prediction
+```
+
+
+
+<Info>
+Thresholding is optional. If you only need probabilities rather than binary classifications, you can use the raw output from the sigmoid function.
+</Info>
+
+## Complete Forward Propagation Flow
+
+Here's the complete process of forward propagation through a neural network:
+
+<Steps>
+
+### Input Layer
+Receive the input features `x`
+
+### Hidden Layers
+Each layer:
+1. Receives activation values from the previous layer
+2. Applies logistic regression units to compute new activations
+3. Passes the activation vector to the next layer
+
+### Output Layer
+Produces the final prediction
+
+### Optional Thresholding
+Convert probability to binary prediction if needed
+
+</Steps>
+
+## Key Concepts Summary
+
+<CardGroup cols={2}>
+
+<Card title="Neuron Function" icon="circle-dot">
+  Each neuron applies logistic regression: `a = g(w · x + b)`
+</Card>
+
+<Card title="Layer Output" icon="layer-group">
+  A layer outputs a vector of activation values
+</Card>
+
+<Card title="Sequential Processing" icon="arrow-right">
+  Data flows from input through hidden layers to output
+</Card>
+
+<Card title="Sigmoid Activation" icon="wave-square">
+  Transforms weighted sums into probabilities between 0 and 1
+</Card>
+
+</CardGroup>
+
+## What's Next?
+
+Now that you understand how neural network layers work, you can explore:
+
+- [TensorFlow Implementation](./tensorflow-implementation) - Learn to implement these concepts in code
+- [Vectorization](./vectorization) - Discover efficient matrix-based implementations
+- [Training Networks](./neural-network-training) - Master the training process
+
+Understanding layers is fundamental to working with more complex neural network architectures. With this foundation, you're ready to build and train your own neural networks!

@@ -1,0 +1,371 @@
+---
+title: The Problem of Overfitting
+description: Learn to recognize and address overfitting and underfitting in machine learning models to build algorithms that generalize well.
+---
+
+## Introduction
+
+Linear regression and logistic regression work well for many tasks, but they can run into a problem called **overfitting**, which causes poor performance. Understanding and addressing overfitting is crucial for building effective machine learning models.
+
+<Info>
+Overfitting occurs when a model fits the training data too well, including noise and random fluctuations, resulting in poor performance on new, unseen data.
+</Info>
+
+## Understanding Overfitting Through Examples
+
+### Regression Example: Housing Prices
+
+Let's revisit predicting housing prices based on size:
+
+<Tabs>
+  <Tab title="Underfitting (High Bias)">
+    **Model**: Linear function f(x) = w*x + b
+    
+    A straight line doesn't capture the pattern in the data well. As house size increases, prices flatten out, but the linear model can't represent this.
+    
+    **Problem**: The model is too simple. It has a strong preconception (bias) that the relationship must be linear, even when data suggests otherwise.
+    
+    **Technical term**: High bias / Underfitting
+  </Tab>
+  
+  <Tab title="Just Right">
+    **Model**: Quadratic function f(x) = w₁*x + w₂*x² + b
+    
+    A curve fits the data reasonably well without being overly complex. It captures the general trend while remaining smooth.
+    
+    **Result**: Good generalization to new examples
+    
+    **Technical term**: Balanced fit
+  </Tab>
+  
+  <Tab title="Overfitting (High Variance)">
+    **Model**: Fourth-order polynomial f(x) = w₁*x + w₂*x² + w₃*x³ + w₄*x⁴ + b
+    
+    A wiggly curve passes through all training points perfectly but makes unreasonable predictions (e.g., large house predicted cheaper than smaller ones).
+    
+    **Problem**: The model tries too hard to fit every data point, including noise. Different training sets would produce very different curves.
+    
+    **Technical term**: High variance / Overfitting
+  </Tab>
+</Tabs>
+
+<Note>
+The goal is to find a model that's "just right"—neither too simple (underfitting) nor too complex (overfitting).
+</Note>
+
+## Bias and Variance
+
+### High Bias (Underfitting)
+
+**Definition**: The model is too simple to capture patterns in the data.
+
+**Characteristics**:
+- Poor performance on training data
+- Poor performance on new data
+- Model has strong preconceptions that may be wrong
+
+**Example**: Using a linear model when the relationship is clearly non-linear
+
+### High Variance (Overfitting)
+
+**Definition**: The model is too complex and fits training data too well, including noise.
+
+**Characteristics**:
+- Excellent performance on training data
+- Poor performance on new data
+- Model predictions vary greatly with small changes in training data
+
+**Example**: Using a high-degree polynomial with too few training examples
+
+<Tip>
+Think of the Goldilocks principle: too cold (underfitting), too hot (overfitting), or just right (balanced fit).
+</Tip>
+
+## Classification Example: Tumor Detection
+
+Overfitting also occurs in classification problems. Consider classifying tumors as malignant or benign using features x₁ (tumor size) and x₂ (patient age):
+
+<Accordion title="Underfitting (High Bias)">
+**Model**: Simple logistic regression
+
+```python
+z = w₁*x₁ + w₂*x₂ + b
+```
+
+**Decision boundary**: Straight line
+
+The linear boundary doesn't fit the data well—some malignant tumors are classified as benign and vice versa.
+
+**Issue**: Model is too simple to capture the classification pattern.
+</Accordion>
+
+<Accordion title="Just Right">
+**Model**: Logistic regression with quadratic features
+
+```python
+z = w₁*x₁ + w₂*x₂ + w₃*x₁² + w₄*x₂² + w₅*x₁*x₂ + b
+```
+
+**Decision boundary**: Ellipse or smooth curve
+
+The model fits reasonably well without perfectly classifying every training example. It generalizes well to new patients.
+
+**Result**: Good balance between bias and variance.
+</Accordion>
+
+<Accordion title="Overfitting (High Variance)">
+**Model**: Logistic regression with many high-order polynomial features
+
+```python
+z = w₁*x₁ + w₂*x₂ + ... + w₁₅*x₁⁴*x₂⁴ + b
+```
+
+**Decision boundary**: Complex, wiggly curve
+
+The boundary contorts itself to classify every training example perfectly, but this overly complex boundary won't generalize well.
+
+**Issue**: Too many features lead to overfitting.
+</Accordion>
+
+## Addressing Overfitting
+
+There are three main strategies to address overfitting:
+
+### 1. Collect More Training Data
+
+<Card title="Most Effective Solution" icon="database">
+Adding more training examples helps the algorithm learn the true underlying pattern rather than memorizing noise.
+
+**Example**: With 100+ house price examples instead of 10, even a high-degree polynomial will fit a smoother curve.
+
+**Limitation**: More data isn't always available or practical to collect.
+</Card>
+
+### 2. Feature Selection
+
+<Accordion title="Reduce Number of Features">
+**Idea**: Use only the most relevant features.
+
+**Example**: Instead of 100 features (size, bedrooms, floors, age, neighborhood income, distance to coffee shop, etc.), select just 3-5 most important ones (size, bedrooms, age).
+
+**Method**: 
+- Manual selection based on intuition
+- Automated feature selection algorithms
+
+**Advantage**: Simpler model, less overfitting
+
+**Disadvantage**: You might discard useful information
+</Accordion>
+
+### 3. Regularization ⭐
+
+<Accordion title="Keep All Features, Reduce Parameter Sizes">
+**Idea**: Keep all features but prevent them from having too large an effect.
+
+**How it works**: Modify the cost function to penalize large parameter values:
+
+```python
+J(w, b) = [original cost] + λ * Σwⱼ²
+```
+
+Where λ (lambda) is the regularization parameter.
+
+**Benefits**:
+- Keeps all features (no information loss)
+- Reduces overfitting by shrinking parameter values
+- Works well in practice
+
+**Note**: Typically regularize only w parameters, not b
+</Accordion>
+
+## Regularization Deep Dive
+
+### How Regularization Works
+
+Consider an overfit model with large parameters:
+
+```python
+f(x) = w₁*x + w₂*x² + w₃*x³ + w₄*x⁴ + b
+```
+
+If w₃ and w₄ are very large, the high-order terms dominate and create wiggly curves.
+
+**Regularization encourages smaller values**:
+- Setting w₄ ≈ 0 effectively eliminates x⁴ term
+- Shrinking w₃ reduces the impact of x³
+- Result: Smoother curve that generalizes better
+
+<Note>
+Regularization doesn't set parameters to exactly zero (unless λ is very large), it just makes them smaller.
+</Note>
+
+### Regularized Cost Function
+
+For linear regression:
+
+```python
+J(w, b) = (1/2m) * Σ(f(x⁽ⁱ⁾) - y⁽ⁱ⁾)² + (λ/2m) * Σwⱼ²
+```
+
+For logistic regression:
+
+```python
+J(w, b) = -(1/m) * Σ[y⁽ⁱ⁾log(f(x⁽ⁱ⁾)) + (1-y⁽ⁱ⁾)log(1-f(x⁽ⁱ⁾))] + (λ/2m) * Σwⱼ²
+```
+
+### Choosing λ (Regularization Parameter)
+
+<Tabs>
+  <Tab title="λ too small">
+    Little regularization effect → Still overfits
+  </Tab>
+  
+  <Tab title="λ balanced">
+    Good balance → Reduces overfitting without underfitting
+  </Tab>
+  
+  <Tab title="λ too large">
+    Over-regularization → Underfits (parameters become too small)
+  </Tab>
+</Tabs>
+
+## Implementation Example
+
+```python
+import numpy as np
+
+def compute_cost_regularized(X, y, w, b, lambda_):
+    """
+    Compute cost with regularization
+    
+    Args:
+        X: Training examples (m x n)
+        y: Target values
+        w: Weights
+        b: Bias
+        lambda_: Regularization parameter
+    
+    Returns:
+        total_cost: Cost with regularization
+    """
+    m = len(y)
+    
+    # Compute base cost
+    predictions = X @ w + b
+    squared_errors = (predictions - y) ** 2
+    base_cost = np.sum(squared_errors) / (2 * m)
+    
+    # Add regularization term
+    reg_cost = (lambda_ / (2 * m)) * np.sum(w ** 2)
+    
+    total_cost = base_cost + reg_cost
+    return total_cost
+
+def gradient_descent_regularized(X, y, w_init, b_init, alpha, lambda_, num_iters):
+    """
+    Gradient descent with regularization
+    
+    Args:
+        X: Training examples
+        y: Target values
+        w_init: Initial weights
+        b_init: Initial bias
+        alpha: Learning rate
+        lambda_: Regularization parameter
+        num_iters: Number of iterations
+    
+    Returns:
+        w, b: Optimized parameters
+    """
+    w = w_init.copy()
+    b = b_init
+    m = len(y)
+    
+    for i in range(num_iters):
+        # Compute predictions
+        predictions = X @ w + b
+        errors = predictions - y
+        
+        # Compute gradients with regularization
+        dj_dw = (1/m) * (X.T @ errors) + (lambda_/m) * w
+        dj_db = (1/m) * np.sum(errors)
+        
+        # Update parameters
+        w = w - alpha * dj_dw
+        b = b - alpha * dj_db
+        
+        if i % 100 == 0:
+            cost = compute_cost_regularized(X, y, w, b, lambda_)
+            print(f"Iteration {i}: Cost {cost:.4f}")
+    
+    return w, b
+
+# Example usage
+X_train = np.array([
+    [1.0, 1.0, 1.0],
+    [2.0, 4.0, 8.0],
+    [3.0, 9.0, 27.0]
+])
+y_train = np.array([2.0, 4.0, 6.0])
+
+w_init = np.array([0.0, 0.0, 0.0])
+b_init = 0.0
+alpha = 0.01
+lambda_ = 0.1  # Regularization parameter
+iterations = 1000
+
+w_final, b_final = gradient_descent_regularized(
+    X_train, y_train, w_init, b_init, alpha, lambda_, iterations
+)
+
+print(f"\nFinal weights: {w_final}")
+print(f"Final bias: {b_final:.4f}")
+```
+
+## Key Takeaways
+
+<Steps>
+  <Step title="Recognize overfitting and underfitting">
+    Underfitting = too simple (high bias)  
+    Overfitting = too complex (high variance)
+  </Step>
+  
+  <Step title="Collect more data when possible">
+    More training examples are the best defense against overfitting
+  </Step>
+  
+  <Step title="Select relevant features">
+    Use feature selection to reduce model complexity
+  </Step>
+  
+  <Step title="Apply regularization">
+    Regularization shrinks parameters without eliminating features entirely
+  </Step>
+</Steps>
+
+## Practical Tips
+
+<Card title="Start Simple" icon="seedling">
+Begin with a simple model and add complexity only if needed. It's easier to add complexity than to debug an overly complex model.
+</Card>
+
+<Card title="Use Validation Sets" icon="check">
+Split your data into training, validation, and test sets. Use the validation set to detect overfitting early.
+</Card>
+
+<Card title="Visualize Decision Boundaries" icon="eye">
+For 2D problems, plot decision boundaries to visually check if they're reasonable or overly complex.
+</Card>
+
+<Card title="Monitor Training vs Test Performance" icon="chart-line">
+If training performance is much better than test performance, you're likely overfitting.
+</Card>
+
+## What's Next
+
+Now that you understand overfitting and regularization:
+
+- Learn about **cross-validation** for better model evaluation
+- Explore **learning curves** to diagnose bias vs variance
+- Study advanced regularization techniques like **L1 regularization** (Lasso)
+- Understand **early stopping** as another regularization approach

@@ -1,0 +1,389 @@
+---
+title: Exploratory Data Analysis with Pandas
+description: Master data analysis fundamentals using Pandas, from loading datasets to computing statistics and creating visualizations.
+---
+
+Exploratory Data Analysis (EDA) is the process of investigating datasets to discover patterns, spot anomalies, test hypotheses, and check assumptions. This guide introduces you to EDA using Pandas, the most popular Python library for data analysis.
+
+## Introduction
+
+In this tutorial, you'll learn essential Pandas operations using the [World Happiness Report](https://worldhappiness.report/) dataset. The dataset contains 2,199 rows with happiness-related metrics for different countries across multiple years.
+
+<Info>
+  This is not a comprehensive Pandas guide, but rather focuses on the functions you'll use most frequently in data analysis. For detailed documentation, see the [official Pandas tutorial](https://pandas.pydata.org/pandas-docs/stable/user_guide/10min.html).
+</Info>
+
+## Getting Started
+
+<Steps>
+  <Step title="Import Required Libraries">
+    Begin by importing Pandas and Seaborn for data manipulation and visualization:
+    
+    ```python
+    import pandas as pd
+    import seaborn as sns
+    ```
+    
+    <Note>
+      If Seaborn is not installed, uncomment and run: `#!pip install seaborn`
+    </Note>
+  </Step>
+  
+  <Step title="Load Your Dataset">
+    Use `pd.read_csv()` to load CSV files:
+    
+    ```python
+    df = pd.read_csv('data/world_happiness.csv')
+    ```
+    
+    This creates a **DataFrame** - Pandas' primary data structure for working with tabular data.
+    
+    <Tip>
+      Pandas supports various file formats. Check the [I/O documentation](https://pandas.pydata.org/pandas-docs/stable/reference/io.html) for other data sources.
+    </Tip>
+  </Step>
+</Steps>
+
+## Viewing Your Data
+
+### Display First and Last Rows
+
+Use `head()` and `tail()` to preview your DataFrame:
+
+```python
+# Display first 5 rows (default)
+df.head()
+
+# Display last 2 rows
+df.tail(2)
+```
+
+<Tabs>
+  <Tab title="Interactive Display">
+    In Jupyter notebooks, the last line of a cell automatically displays its output:
+    
+    ```python
+    df.head()  # Displays formatted table
+    ```
+  </Tab>
+  
+  <Tab title="Print vs Display">
+    For multiple DataFrames in one cell:
+    
+    ```python
+    display(df.head())  # Formatted table
+    print("Additional text")
+    display(df.tail())  # Another formatted table
+    ```
+    
+    `print(df)` shows plain text, while `display(df)` maintains formatting.
+  </Tab>
+</Tabs>
+
+## Understanding DataFrame Structure
+
+### Index and Column Names
+
+Every DataFrame has an index (row labels) and column names:
+
+```python
+# View index
+df.index  # RangeIndex(start=0, stop=2199, step=1)
+
+# View column names
+df.columns
+```
+
+### Renaming Columns
+
+Column names with spaces can be problematic. Replace spaces with underscores:
+
+```python
+# Automatic rename: replace spaces and lowercase
+columns_to_rename = {i: "_".join(i.split(" ")).lower() for i in df.columns}
+df = df.rename(columns=columns_to_rename)
+
+df.head()
+```
+
+<Accordion title="Why Rename Columns?">
+  Column names without spaces allow cleaner syntax:
+  
+  ```python
+  df.life_ladder  # Easy access
+  df["Life Ladder"]  # Required with spaces
+  ```
+</Accordion>
+
+### Data Types
+
+Check column data types with `dtypes`:
+
+```python
+df.dtypes
+```
+
+<Info>
+  Unlike NumPy arrays, DataFrame columns can have different data types. This makes DataFrames ideal for mixed-type data.
+</Info>
+
+Change data types when needed:
+
+```python
+# List columns that should be floats
+float_columns = [i for i in df.columns if i not in ["country_name", "year"]]
+
+# Convert to float type
+df = df.astype({i: float for i in float_columns})
+```
+
+Get comprehensive information:
+
+```python
+df.info()  # Shows types, non-null counts, memory usage
+```
+
+## Selecting Data
+
+### Selecting Columns
+
+<Tabs>
+  <Tab title="Single Column (Series)">
+    ```python
+    # Dot notation - returns Series
+    x = df.life_ladder
+    
+    # Bracket notation - returns Series
+    x = df["life_ladder"]
+    
+    print(type(x))  # <class 'pandas.core.series.Series'>
+    ```
+  </Tab>
+  
+  <Tab title="Single Column (DataFrame)">
+    ```python
+    # Pass list with one column - returns DataFrame
+    x = df[["life_ladder"]]
+    
+    print(type(x))  # <class 'pandas.core.frame.DataFrame'>
+    ```
+  </Tab>
+  
+  <Tab title="Multiple Columns">
+    ```python
+    # Pass list of column names
+    x = df[["life_ladder", "year"]]
+    
+    print(type(x))  # <class 'pandas.core.frame.DataFrame'>
+    ```
+  </Tab>
+</Tabs>
+
+### Selecting Rows
+
+Use slicing to select rows:
+
+```python
+# Select rows 2, 3, and 4
+df[2:5]
+```
+
+### Iterating Over Rows
+
+Use `.iterrows()` for row-by-row iteration:
+
+```python
+for index, row in df.iterrows():
+    print(f"Country: {row['country_name']}, Year: {row['year']}")
+    break  # Just show first row
+```
+
+<Note>
+  `.iterrows()` does not preserve dtypes across rows. Data types are preserved across columns in DataFrames.
+</Note>
+
+## Boolean Indexing
+
+Filter data based on conditions:
+
+```python
+# Select data from 2022 only
+df_2022 = df[df["year"] == 2022]
+
+# Select high happiness scores
+high_happiness = df[df["life_ladder"] > 7]
+
+# Combine conditions
+recent_happy = df[(df["year"] >= 2020) & (df["life_ladder"] > 7)]
+```
+
+### Resetting Index
+
+After filtering, reset the index for cleaner row numbering:
+
+```python
+new_df = df[df["year"] == 2022]
+new_df = new_df.reset_index(drop=True)
+print(new_df.head())
+```
+
+<Tip>
+  Use `drop=True` to discard the old index. Without it, the old index becomes a new column.
+</Tip>
+
+## Summary Statistics
+
+Compute statistical summaries with `describe()`:
+
+```python
+df.describe()
+```
+
+This returns:
+- **count**: Number of non-null values
+- **mean**: Average value
+- **std**: Standard deviation
+- **min/max**: Minimum and maximum values
+- **25%, 50%, 75%**: Quartiles (50% is the median)
+
+<Note>
+  When aggregating data across countries and years, consider whether simple averages make sense. Do all countries have equal data points? Should countries be weighted by population?
+</Note>
+
+## Data Visualization
+
+### Basic Plotting
+
+Pandas integrates matplotlib for quick visualizations:
+
+```python
+# Plot all numeric columns
+df.plot()
+```
+
+<Info>
+  This default plot often isn't useful for mixed datasets. Specify columns and plot types for better results.
+</Info>
+
+### Scatter Plots
+
+Visualize relationships between variables:
+
+```python
+# GDP vs Happiness
+df.plot(kind='scatter', x='log_gdp_per_capita', y='life_ladder')
+```
+
+This reveals a positive correlation: wealthier countries tend to have happier populations.
+
+### Color-Coded Scatter Plots
+
+Highlight specific data points:
+
+```python
+# Create color mapping
+cmap = {
+    'Brazil': 'Green',
+    'Slovenia': 'Orange',
+    'India': 'purple'
+}
+
+df.plot(
+    kind='scatter',
+    x='log_gdp_per_capita',
+    y='life_ladder',
+    c=[cmap.get(c, 'yellow') for c in df.country_name],
+    s=2  # Point size
+)
+```
+
+<Tip>
+  Color coding reveals patterns that aggregate statistics might miss. For example, Brazil shows higher happiness than Slovenia despite lower GDP.
+</Tip>
+
+### Histograms
+
+Visualize value distributions:
+
+```python
+df.hist("life_ladder")
+```
+
+Histograms show the distribution shape, helping identify skewness, outliers, and central tendencies.
+
+### Pairplot for Multiple Variables
+
+Seaborn's pairplot shows all pairwise relationships:
+
+```python
+sns.pairplot(df)
+```
+
+This creates:
+- Scatter plots for each variable pair
+- Histograms on the diagonal
+
+<Note>
+  Pairplots can take time with many columns. Consider selecting a subset of columns for faster rendering.
+</Note>
+
+## Column Operations
+
+### Creating New Columns
+
+Perform arithmetic operations:
+
+```python
+# Create net affect difference
+df["net_affect_difference"] = df["positive_affect"] - df["negative_affect"]
+
+df.head()
+```
+
+### Applying Functions
+
+Use `apply()` for custom transformations:
+
+<Tabs>
+  <Tab title="Lambda Functions">
+    ```python
+    # Rescale to 0-1 range
+    df['life_ladder_rescaled'] = df['life_ladder'].apply(lambda x: x / 10)
+    ```
+  </Tab>
+  
+  <Tab title="Custom Functions">
+    ```python
+    def my_function(x):
+        # Custom transformation
+        y = x * 2
+        return y
+    
+    df['doubled'] = df['life_ladder'].apply(my_function)
+    ```
+  </Tab>
+</Tabs>
+
+## Key Takeaways
+
+<CardGroup cols={2}>
+  <Card title="Data Loading" icon="file-import">
+    Use `pd.read_csv()` to load data. Pandas supports many formats.
+  </Card>
+  
+  <Card title="Data Selection" icon="filter">
+    Use boolean indexing to filter data based on conditions.
+  </Card>
+  
+  <Card title="Statistics" icon="chart-simple">
+    Use `.describe()` for quick statistical summaries.
+  </Card>
+  
+  <Card title="Visualization" icon="chart-line">
+    Combine Pandas with Matplotlib and Seaborn for powerful visualizations.
+  </Card>
+</CardGroup>
+
+<Tip>
+  If you need a refresher on these concepts later, return to this guide. These are the foundational skills for all data analysis work.
+</Tip>

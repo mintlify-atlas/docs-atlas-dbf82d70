@@ -1,0 +1,414 @@
+---
+title: Matrix Multiplication and Operations
+description: Master matrix multiplication, dot products, and vector operations essential for machine learning and linear algebra applications.
+---
+
+## Introduction
+
+Matrix multiplication is a fundamental operation in linear algebra with critical applications in machine learning, neural networks, and data science. This guide covers matrix multiplication mechanics, Python implementation, and important conventions.
+
+## Setup
+
+Load NumPy to access matrix functions:
+
+```python
+import numpy as np
+```
+
+## Vector Operations
+
+### Scalar Multiplication
+
+**Scalar multiplication** multiplies each element of a vector by a scalar value:
+
+```python
+v = np.array([[-3], [-4]])
+
+# Multiply by scalar
+result = 2 * v
+print(result)
+# Output:
+# [[-6]
+#  [-8]]
+```
+
+<Info>
+If $k > 0$, then $kv$ points in the same direction as $v$ but is $k$ times longer. If $k < 0$, the vector points in the opposite direction.
+</Info>
+
+### Vector Addition
+
+Add vectors by adding corresponding components:
+
+```python
+v = np.array([[1], [3]])
+w = np.array([[4], [-1]])
+
+# Add vectors
+sum_vector = v + w
+print(sum_vector)
+# Output:
+# [[5]
+#  [2]]
+
+# Alternative using np.add()
+sum_vector = np.add(v, w)
+print(sum_vector)
+```
+
+<Note>
+The **parallelogram law** provides geometric interpretation: for vectors $u$ and $v$, the sum $u+v$ is the diagonal of the parallelogram formed by $u$ and $v$.
+</Note>
+
+### Vector Norm
+
+The **norm** (length) of a vector describes its extent in space:
+
+```python
+v = np.array([[1], [3]])
+
+# Calculate norm
+norm = np.linalg.norm(v)
+print(f"Norm of vector v: {norm}")
+# Output: Norm of vector v: 3.1622776601683795
+```
+
+## Dot Product
+
+### Algebraic Definition
+
+The **dot product** (or **scalar product**) takes two vectors and returns a scalar:
+
+$$
+x\cdot y = \sum_{i=1}^{n} x_iy_i = x_1y_1+x_2y_2+\ldots+x_ny_n
+$$
+
+### Computing Dot Products
+
+```python
+x = np.array([1, -2, -5])
+y = np.array([4, 3, -1])
+
+# Method 1: Using np.dot()
+dot_product = np.dot(x, y)
+print(f"Dot product: {dot_product}")
+# Output: Dot product: 3
+
+# Method 2: Using @ operator
+dot_product = x @ y
+print(f"Dot product: {dot_product}")
+# Output: Dot product: 3
+```
+
+<Tip>
+For NumPy arrays, both `np.dot()` and `@` operator work for dot products. The `@` operator requires arrays, while `np.dot()` also works with lists.
+</Tip>
+
+### Manual Implementation
+
+Understanding the loop-based approach:
+
+```python
+def dot(x, y):
+    s = 0
+    for xi, yi in zip(x, y):
+        s += xi * yi
+    return s
+
+x = [1, -2, -5]
+y = [4, 3, -1]
+
+result = dot(x, y)
+print(f"Dot product: {result}")
+# Output: Dot product: 3
+```
+
+### Geometric Definition
+
+The dot product has a geometric interpretation:
+
+$$
+x\cdot y = \lvert x\rvert \lvert y\rvert \cos(\theta)
+$$
+
+where $\theta$ is the angle between the vectors.
+
+<Info>
+**Orthogonality Test**: If vectors are orthogonal (perpendicular), $\theta = 90°$ and $\cos(90°) = 0$, so their dot product equals zero.
+</Info>
+
+```python
+# Test orthogonal vectors
+i = np.array([1, 0, 0])
+j = np.array([0, 1, 0])
+
+print(f"Dot product of i and j: {np.dot(i, j)}")
+# Output: Dot product of i and j: 0
+```
+
+### Vectorized vs Loop Performance
+
+Compare computation speeds:
+
+```python
+import time
+
+# Create large vectors
+a = np.random.rand(1000000)
+b = np.random.rand(1000000)
+
+# Loop version
+tic = time.time()
+c = dot(a.tolist(), b.tolist())
+toc = time.time()
+print(f"Loop version: {1000*(toc-tic):.2f} ms")
+
+# Vectorized version
+tic = time.time()
+c = np.dot(a, b)
+toc = time.time()
+print(f"Vectorized version: {1000*(toc-tic):.2f} ms")
+```
+
+<Warning>
+Vectorized operations are significantly faster than loops, especially for large datasets. Always prefer NumPy's built-in functions for production code.
+</Warning>
+
+## Matrix Multiplication
+
+### Mathematical Definition
+
+If $A$ is an $m \times n$ matrix and $B$ is an $n \times p$ matrix, the product $C = AB$ is an $m \times p$ matrix where:
+
+$$
+c_{ij}=\sum_{k=1}^{n} a_{ik}b_{kj}
+$$
+
+Each element $c_{ij}$ is the dot product of the $i$-th row of $A$ and the $j$-th column of $B$.
+
+### Python Implementation
+
+Define two matrices:
+
+```python
+A = np.array([[4, 9, 9], 
+              [9, 1, 6], 
+              [9, 2, 3]])
+print("Matrix A (3 by 3):")
+print(A)
+
+B = np.array([[2, 2], 
+              [5, 7], 
+              [4, 4]])
+print("Matrix B (3 by 2):")
+print(B)
+```
+
+### Using `np.matmul()`
+
+```python
+C = np.matmul(A, B)
+print("Result of A @ B:")
+print(C)
+# Output:
+# [[89 101]
+#  [47  49]
+#  [40  44]]
+```
+
+### Using `@` Operator
+
+```python
+C = A @ B
+print("Result of A @ B:")
+print(C)
+# Same output as above
+```
+
+<Tip>
+The `@` operator is the recommended way to perform matrix multiplication in modern Python (3.5+). It's cleaner and more readable than `np.matmul()`.
+</Tip>
+
+## Matrix Multiplication Rules
+
+### Dimension Compatibility
+
+<Steps>
+  <Step title="Check Inner Dimensions">
+    For $A_{m \times n}$ and $B_{n \times p}$, the inner dimensions ($n$) must match
+  </Step>
+  <Step title="Determine Output Shape">
+    The result will be $C_{m \times p}$ (outer dimensions)
+  </Step>
+  <Step title="Order Matters">
+    Generally, $AB \neq BA$ - matrix multiplication is not commutative
+  </Step>
+</Steps>
+
+### Incompatible Dimensions
+
+Changing the order may cause errors:
+
+```python
+try:
+    result = np.matmul(B, A)  # 2x3 times 3x3 = OK (2x3)
+    print("This works! Shape:", result.shape)
+except ValueError as err:
+    print(err)
+
+try:
+    result = B @ A  # Same as above
+    print("This works! Shape:", result.shape)
+except ValueError as err:
+    print(err)
+```
+
+<Warning>
+**Critical Rule**: The number of columns in the first matrix must equal the number of rows in the second matrix. This is essential for neural networks and deep learning.
+</Warning>
+
+## Broadcasting in NumPy
+
+### Vector Multiplication Shortcut
+
+NumPy automatically handles certain dimension mismatches:
+
+```python
+x = np.array([1, -2, -5])
+y = np.array([4, 3, -1])
+
+print("Shape of x:", x.shape)  # Output: (3,)
+print("Dimensions:", x.ndim)    # Output: 1
+
+# This works due to broadcasting
+result = x @ y
+print(f"Result: {result}")
+# Output: Result: 3 (dot product)
+```
+
+<Info>
+NumPy treats 1-D vectors specially: in `x @ y`, vector $x$ is automatically transposed to make the operation valid, computing the dot product $x^T y$.
+</Info>
+
+### Explicit Reshaping
+
+For strict matrix multiplication:
+
+```python
+try:
+    result = np.matmul(
+        x.reshape((3, 1)), 
+        y.reshape((3, 1))
+    )
+except ValueError as err:
+    print(err)
+    # Output: matmul: Input operand 1 has a mismatch in its core dimension
+```
+
+### Broadcasting with Scalars
+
+Scalar operations broadcast to all elements:
+
+```python
+A = np.array([[4, 9, 9], 
+              [9, 1, 6], 
+              [9, 2, 3]])
+
+# Subtract 2 from all elements
+result = A - 2
+print(result)
+# Output:
+# [[2 7 7]
+#  [7 -1 4]
+#  [7 0 1]]
+```
+
+## Using `np.dot()` for Matrices
+
+The `np.dot()` function also works for matrix multiplication:
+
+```python
+result = np.dot(A, B)
+print(result)
+# Same output as np.matmul(A, B)
+```
+
+<Note>
+While `np.dot()` works for matrices, `@` operator is preferred for clarity. Use `np.dot()` primarily for explicit dot products of 1-D vectors.
+</Note>
+
+## Practical Applications
+
+### Linear Regression
+
+Matrix multiplication is fundamental in linear regression models:
+
+```python
+# X: features matrix (m samples, n features)
+# w: weights vector
+# Predictions: y = X @ w
+
+X = np.array([[1, 2], 
+              [3, 4], 
+              [5, 6]])
+w = np.array([[0.5], 
+              [0.3]])
+
+y_pred = X @ w
+print("Predictions:")
+print(y_pred)
+```
+
+### Neural Networks
+
+Matrix operations form the backbone of neural network computations:
+
+```python
+# Input layer to hidden layer
+# activations = weights @ inputs + bias
+
+inputs = np.array([[1.0], [2.0], [3.0]])
+weights = np.array([[0.1, 0.2, 0.3],
+                    [0.4, 0.5, 0.6]])
+bias = np.array([[0.1], [0.2]])
+
+activations = weights @ inputs + bias
+print("Hidden layer activations:")
+print(activations)
+```
+
+## Summary
+
+<AccordionGroup>
+  <Accordion title="Vector Operations">
+    - **Scalar multiplication**: Element-wise multiplication by a constant
+    - **Vector addition**: Add corresponding components
+    - **Norm**: Measure of vector length using `np.linalg.norm()`
+  </Accordion>
+
+  <Accordion title="Dot Product">
+    - Returns a scalar from two vectors
+    - Computed as sum of element-wise products
+    - Use `np.dot()` or `@` operator
+    - Geometric interpretation involves angle between vectors
+    - Zero dot product indicates orthogonality
+  </Accordion>
+
+  <Accordion title="Matrix Multiplication">
+    - Element $c_{ij}$ is dot product of row $i$ and column $j$
+    - Use `np.matmul()` or `@` operator
+    - Inner dimensions must match
+    - Result dimensions: $(m \times n) @ (n \times p) = (m \times p)$
+    - Order matters: generally $AB \neq BA$
+  </Accordion>
+
+  <Accordion title="Performance">
+    - Vectorized operations are much faster than loops
+    - NumPy optimizes matrix operations using low-level libraries
+    - Critical for large-scale machine learning applications
+  </Accordion>
+</AccordionGroup>
+
+<Card title="Next: Linear Transformations" icon="forward" href="/mathematics/algebra/linear-transformations">
+  Explore how matrices transform vector spaces and their geometric interpretations
+</Card>

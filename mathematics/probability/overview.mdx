@@ -1,0 +1,175 @@
+---
+title: Probability & Statistics Overview
+description: Explore fundamental concepts in probability and statistics, from simulating random events to analyzing real-world datasets.
+---
+
+Welcome to Probability & Statistics! This section covers essential concepts and practical applications that help you understand randomness, data analysis, and statistical inference.
+
+## What You'll Learn
+
+<CardGroup cols={2}>
+  <Card title="Probability Fundamentals" icon="dice">
+    Learn to simulate random events, understand probability distributions, and explore counter-intuitive probability problems.
+  </Card>
+  
+  <Card title="Exploratory Data Analysis" icon="chart-line">
+    Master data manipulation with Pandas, create insightful visualizations, and extract meaningful patterns from datasets.
+  </Card>
+  
+  <Card title="Statistical Methods" icon="calculator">
+    Apply summary statistics, correlation analysis, and linear regression to real-world problems.
+  </Card>
+  
+  <Card title="Data Visualization" icon="chart-bar">
+    Create compelling visualizations using Matplotlib and Seaborn to communicate insights effectively.
+  </Card>
+</CardGroup>
+
+## Core Topics
+
+<AccordionGroup>
+  <Accordion title="Probability Simulations">
+    Learn how to use NumPy to simulate probabilistic events like dice rolls, understand uniform and loaded distributions, and analyze dependent and independent events.
+    
+    **Key Skills:**
+    - Simulating random events with NumPy
+    - Computing mean, variance, and covariance
+    - Understanding probability distributions
+    - Visualizing probability with histograms
+  </Accordion>
+  
+  <Accordion title="Famous Probability Problems">
+    Explore counter-intuitive probability problems that challenge your intuition:
+    
+    - **Birthday Paradox**: Understanding matching probabilities in groups
+    - **Monty Hall Problem**: Decision-making under uncertainty
+    
+    These problems demonstrate why analytical solutions and simulations are essential in probability theory.
+  </Accordion>
+  
+  <Accordion title="Data Analysis with Pandas">
+    Master the most important Python library for data analysis:
+    
+    - Loading and exploring datasets
+    - Data cleaning and transformation
+    - Boolean indexing and filtering
+    - Computing summary statistics
+    - Creating various plot types
+  </Accordion>
+  
+  <Accordion title="Statistical Inference">
+    Apply statistical methods to understand relationships in data:
+    
+    - Descriptive statistics (mean, median, quartiles)
+    - Correlation and covariance
+    - Linear regression with scikit-learn
+    - Model evaluation and feature importance
+  </Accordion>
+</AccordionGroup>
+
+## Getting Started
+
+<Steps>
+  <Step title="Set Up Your Environment">
+    Install the required Python libraries:
+    
+    ```bash
+    pip install numpy pandas matplotlib seaborn scikit-learn
+    ```
+  </Step>
+  
+  <Step title="Learn the Fundamentals">
+    Start with probability simulations to build intuition about random processes and distributions.
+  </Step>
+  
+  <Step title="Explore Real Datasets">
+    Apply your knowledge to real-world datasets like the World Happiness Report and Chicago rideshare data.
+  </Step>
+  
+  <Step title="Build Predictive Models">
+    Use statistical methods like linear regression to make predictions and understand relationships between variables.
+  </Step>
+</Steps>
+
+## Key Libraries
+
+<Tabs>
+  <Tab title="NumPy">
+    **NumPy** is the foundation for numerical computing in Python.
+    
+    ```python
+    import numpy as np
+    
+    # Generate random samples
+    samples = np.random.randint(1, 7, size=1000)
+    
+    # Compute statistics
+    mean = np.mean(samples)
+    variance = np.var(samples)
+    ```
+    
+    Use NumPy for simulations, array operations, and mathematical computations.
+  </Tab>
+  
+  <Tab title="Pandas">
+    **Pandas** provides powerful data structures for data analysis.
+    
+    ```python
+    import pandas as pd
+    
+    # Load dataset
+    df = pd.read_csv('data.csv')
+    
+    # Explore data
+    print(df.head())
+    print(df.describe())
+    
+    # Filter data
+    filtered = df[df['column'] > 5]
+    ```
+  </Tab>
+  
+  <Tab title="Visualization">
+    **Matplotlib** and **Seaborn** create publication-quality visualizations.
+    
+    ```python
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    
+    # Create scatter plot
+    plt.scatter(x, y)
+    plt.xlabel('X Variable')
+    plt.ylabel('Y Variable')
+    plt.show()
+    
+    # Create enhanced visualizations
+    sns.pairplot(df)
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  All examples in this section use real datasets and practical scenarios. You'll work with data from sources like the World Happiness Report and transportation datasets.
+</Note>
+
+## Real-World Applications
+
+The skills you'll develop have applications across many fields:
+
+- **Data Science**: Analyze trends, patterns, and relationships in data
+- **Machine Learning**: Build predictive models and evaluate their performance
+- **Business Intelligence**: Make data-driven decisions based on statistical evidence
+- **Research**: Apply statistical methods to validate hypotheses
+- **Risk Analysis**: Understand and quantify uncertainty
+
+<Tip>
+  Start with simpler problems to build intuition, then progress to more complex real-world datasets. The combination of analytical solutions and computational simulations will give you deep understanding.
+</Tip>
+
+## Next Steps
+
+Explore the detailed topics:
+
+1. **Exploratory Data Analysis**: Learn data manipulation and analysis with Pandas
+2. **Data Visualization**: Master visualization techniques for statistical insights
+3. **Statistical Problems**: Solve famous probability problems through simulation and analysis

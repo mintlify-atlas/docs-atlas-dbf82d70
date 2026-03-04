@@ -1,0 +1,331 @@
+---
+title: Clustering with K-Means
+description: Master the K-means clustering algorithm to automatically group similar data points and discover patterns in unlabeled data.
+---
+
+## What is Clustering
+
+A clustering algorithm looks at a number of data points and automatically finds data points that are related or similar to each other. Unlike supervised learning where we have labeled training data, clustering works with unlabeled data to discover natural groupings.
+
+<Info>
+**Clustering** is an unsupervised learning algorithm that takes data without labels and automatically groups them into clusters based on similarity.
+</Info>
+
+### Clustering vs Classification
+
+Let's contrast clustering with supervised learning:
+
+- **Supervised Learning (Classification)**: Given a dataset with features x₁ and x₂, we have both inputs **x** and labels **y**. We can fit logistic regression or neural networks to learn a decision boundary.
+
+- **Unsupervised Learning (Clustering)**: We're given a dataset with just **x**, but not the target labels **y**. We ask the algorithm to find interesting structure - to discover if the data can be grouped into clusters.
+
+## K-Means Algorithm
+
+The K-means algorithm is the most widely used clustering technique. It identifies *k* distinct groups in your data by iteratively refining cluster assignments.
+
+### How K-Means Works
+
+<Steps>
+  <Step title="Initialize Cluster Centroids">
+    Randomly pick *k* training examples from your dataset. Set μ₁, μ₂, ..., μₖ (the cluster centroids) equal to these *k* examples.
+    
+    ```python
+    # Randomly initialize k centroids from training data
+    random_indices = np.random.choice(m, k, replace=False)
+    centroids = X[random_indices]
+    ```
+  </Step>
+  
+  <Step title="Assign Points to Nearest Centroid">
+    For each training example xⁱ, calculate its distance to each centroid. Assign the example to the cluster of the nearest centroid.
+    
+    Set cⁱ = index of cluster centroid closest to xⁱ
+    
+    ```python
+    # Compute distances to all centroids
+    for i in range(m):
+        distances = np.linalg.norm(X[i] - centroids, axis=1)
+        cluster_assignments[i] = np.argmin(distances)
+    ```
+    
+    <Note>
+    The distance metric used is the L2 norm (Euclidean distance): ||xⁱ - μₖ||
+    </Note>
+  </Step>
+  
+  <Step title="Move Centroids">
+    For each cluster *k*, compute the mean of all points assigned to that cluster. Move the centroid μₖ to this mean location.
+    
+    ```python
+    # Update each centroid to the mean of assigned points
+    for k in range(K):
+        points_in_cluster = X[cluster_assignments == k]
+        if len(points_in_cluster) > 0:
+            centroids[k] = np.mean(points_in_cluster, axis=0)
+    ```
+  </Step>
+  
+  <Step title="Repeat Until Convergence">
+    Iterate between steps 2 and 3 until cluster assignments no longer change or the centroids stop moving significantly.
+  </Step>
+</Steps>
+
+### Complete K-Means Implementation
+
+Here's a full implementation showing the iterative process:
+
+```python
+import numpy as np
+
+def kmeans(X, k, max_iterations=100):
+    """
+    K-means clustering algorithm
+    
+    Parameters:
+    -----------
+    X : array of shape (m, n)
+        Training examples with m samples and n features
+    k : int
+        Number of clusters
+    max_iterations : int
+        Maximum number of iterations
+    
+    Returns:
+    --------
+    centroids : array of shape (k, n)
+        Final cluster centroids
+    assignments : array of shape (m,)
+        Cluster assignment for each example
+    """
+    m, n = X.shape
+    
+    # Step 1: Randomly initialize centroids
+    random_indices = np.random.choice(m, k, replace=False)
+    centroids = X[random_indices].copy()
+    
+    for iteration in range(max_iterations):
+        # Step 2: Assign points to nearest centroid
+        assignments = np.zeros(m, dtype=int)
+        for i in range(m):
+            distances = np.linalg.norm(X[i] - centroids, axis=1)
+            assignments[i] = np.argmin(distances)
+        
+        # Step 3: Move centroids
+        new_centroids = np.zeros_like(centroids)
+        for k_idx in range(k):
+            points_in_cluster = X[assignments == k_idx]
+            if len(points_in_cluster) > 0:
+                new_centroids[k_idx] = np.mean(points_in_cluster, axis=0)
+            else:
+                # If cluster is empty, reinitialize
+                new_centroids[k_idx] = X[np.random.choice(m)]
+        
+        # Check for convergence
+        if np.allclose(centroids, new_centroids):
+            break
+            
+        centroids = new_centroids
+    
+    return centroids, assignments
+
+# Example usage
+X = np.random.randn(100, 2)  # 100 samples, 2 features
+centroids, assignments = kmeans(X, k=3)
+print(f"Cluster assignments: {assignments}")
+```
+
+## Optimization Objective
+
+K-means optimizes a specific cost function called the **distortion function**:
+
+<Note>
+**Cost Function J:**
+
+J(c¹,...,cᵐ, μ₁,...,μₖ) = (1/m) Σᵢ₌₁ᵐ ||xⁱ - μ_cⁱ||²
+
+This is the average squared distance between each training example and the centroid of the cluster to which it's assigned.
+</Note>
+
+### Why the Algorithm Works
+
+<Accordion title="Step 1: Assigning Points Minimizes Distance">
+  When assigning points to clusters, we choose the closest centroid for each point. This minimizes the squared distance ||xⁱ - μ_cⁱ||² for each example, thus reducing the overall cost function J.
+</Accordion>
+
+<Accordion title="Step 2: Moving Centroids Reduces Average Distance">
+  Moving the centroid to the mean position of all assigned points minimizes the average squared distance to those points. This is a mathematical property of the mean - it's the point that minimizes squared distances.
+  
+  For example, if a cluster has points at positions 1 and 11, placing the centroid at their average (6) gives squared distances of 25 + 25 = 50. Any other position would give a larger sum.
+</Accordion>
+
+### Convergence Guarantee
+
+<Info>
+K-means is **guaranteed to converge** because each iteration either reduces the cost function J or keeps it the same. The algorithm stops when no further improvement is possible.
+</Info>
+
+## Random Initialization
+
+The choice of initial centroids significantly impacts the final result. K-means can get stuck in local optima depending on initialization.
+
+### Multiple Random Initializations
+
+To find better clusters, run K-means multiple times with different initializations:
+
+```python
+def kmeans_multiple_init(X, k, n_init=50):
+    """
+    Run K-means multiple times and pick the best result
+    
+    Parameters:
+    -----------
+    X : array of shape (m, n)
+        Training examples
+    k : int
+        Number of clusters
+    n_init : int
+        Number of times to run K-means with different initializations
+    
+    Returns:
+    --------
+    best_centroids : array of shape (k, n)
+        Centroids with lowest distortion
+    best_assignments : array of shape (m,)
+        Best cluster assignments
+    """
+    best_cost = float('inf')
+    best_centroids = None
+    best_assignments = None
+    
+    for i in range(n_init):
+        # Run K-means with random initialization
+        centroids, assignments = kmeans(X, k)
+        
+        # Compute cost (distortion)
+        cost = 0
+        for j in range(len(X)):
+            cost += np.linalg.norm(X[j] - centroids[assignments[j]])**2
+        cost /= len(X)
+        
+        # Keep track of best result
+        if cost < best_cost:
+            best_cost = cost
+            best_centroids = centroids
+            best_assignments = assignments
+    
+    return best_centroids, best_assignments
+
+# Run with 100 random initializations
+centroids, assignments = kmeans_multiple_init(X, k=3, n_init=100)
+```
+
+<Tip>
+**Recommended Practice:** Use 50-1000 random initializations. More than 1000 tends to have diminishing returns and becomes computationally expensive.
+</Tip>
+
+## Choosing the Number of Clusters
+
+How do you decide the value of *k* - the number of clusters?
+
+### The Ambiguity Challenge
+
+<Info>
+For many clustering problems, the right value of *k* is genuinely ambiguous. Different people might see different numbers of natural groupings in the same data.
+</Info>
+
+Since clustering is unsupervised learning, the data doesn't provide clear "right answers" about the number of clusters.
+
+### The Elbow Method
+
+One approach is to plot the cost function J versus the number of clusters:
+
+```python
+import matplotlib.pyplot as plt
+
+# Try different values of k
+k_values = range(1, 11)
+costs = []
+
+for k in k_values:
+    centroids, assignments = kmeans_multiple_init(X, k, n_init=10)
+    
+    # Compute distortion
+    cost = 0
+    for i in range(len(X)):
+        cost += np.linalg.norm(X[i] - centroids[assignments[i]])**2
+    cost /= len(X)
+    costs.append(cost)
+
+# Plot the elbow curve
+plt.plot(k_values, costs, 'bo-')
+plt.xlabel('Number of clusters (k)')
+plt.ylabel('Distortion J')
+plt.title('Elbow Method for Optimal k')
+plt.show()
+```
+
+Look for an "elbow" in the curve where the cost decreases rapidly before *k* and more slowly after.
+
+<Note>
+**Limitation:** In practice, many datasets don't have a clear elbow, making this method less useful than it might seem.
+</Note>
+
+### Evaluation Based on Later Purpose
+
+A better approach is choosing *k* based on what you need clusters for:
+
+<Accordion title="Example: T-shirt Sizing">
+  If manufacturing t-shirts, you might evaluate:
+  
+  - **k=3** (S, M, L): Simpler inventory, but some customers get poor fits
+  - **k=5** (XS, S, M, L, XL): Better fit for more customers, but more complex inventory
+  
+  Choose *k* based on the trade-off between fit quality and operational complexity.
+</Accordion>
+
+<Accordion title="Example: Image Compression">
+  For compressing images by clustering pixel colors:
+  
+  - Lower *k*: Smaller file size, lower quality
+  - Higher *k*: Better image quality, larger file size
+  
+  Choose *k* based on your quality vs. compression requirements.
+</Accordion>
+
+## Practical Applications
+
+<CardGroup cols={2}>
+  <Card title="Customer Segmentation" icon="users">
+    Group customers by behavior patterns to personalize marketing and services
+  </Card>
+  
+  <Card title="Document Organization" icon="folder-tree">
+    Automatically categorize documents or news articles by topic
+  </Card>
+  
+  <Card title="Image Compression" icon="image">
+    Reduce colors in images by clustering similar pixel values
+  </Card>
+  
+  <Card title="Genomic Analysis" icon="dna">
+    Identify subtypes in biological data based on gene expression
+  </Card>
+</CardGroup>
+
+## Key Takeaways
+
+<Tip>
+**Best Practices for K-Means:**
+
+1. Always use multiple random initializations (50-100 runs)
+2. Ensure k < m (fewer clusters than training examples)
+3. The cost function J should decrease or stay constant each iteration
+4. Choose *k* based on downstream application needs rather than just the elbow method
+5. Standardize features if they have different scales
+</Tip>
+
+## Next Steps
+
+<Card title="Anomaly Detection" icon="triangle-exclamation" href="./anomaly-detection">
+  Learn how to detect unusual events and outliers in your data
+</Card>

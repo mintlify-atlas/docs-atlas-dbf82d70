@@ -1,0 +1,336 @@
+---
+title: TensorFlow Implementation
+description: Learn how to implement neural networks using TensorFlow, one of the leading deep learning frameworks
+---
+
+TensorFlow is one of the leading frameworks for implementing deep learning algorithms. When building projects, TensorFlow is a tool used most often by practitioners. Let's learn how to implement inference and training in TensorFlow.
+
+<Note>
+While PyTorch is another popular framework, this guide focuses on TensorFlow due to its widespread adoption and comprehensive ecosystem.
+</Note>
+
+## Inference in TensorFlow
+
+Let's start by understanding how to implement inference (making predictions) using TensorFlow.
+
+### Coffee Roasting Example
+
+Consider a coffee roasting optimization problem where you control:
+- **Temperature**: The heating temperature for raw coffee beans
+- **Duration**: How long to roast the beans
+
+The goal is to predict whether the roasting parameters will produce good-tasting coffee.
+
+
+
+<Accordion title="Understanding the dataset">
+In this dataset:
+- Positive examples (good coffee) form a triangle region
+- Too low temperature → undercooked beans
+- Too short duration → not properly roasted
+- Too high temperature or too long → overcooked/burnt beans
+
+Only points within an optimal range produce good coffee.
+</Accordion>
+
+
+
+## Basic TensorFlow Inference Code
+
+Here's how to perform inference for a sample input (200°C for 17 minutes):
+
+<Steps>
+
+### Define Input Features
+
+```python
+import numpy as np
+import tensorflow as tf
+
+# Input: temperature (200°C) and duration (17 minutes)
+x = np.array([[200.0, 17.0]])
+```
+
+### Create Layer 1
+
+```python
+# Create first hidden layer with 3 units and sigmoid activation
+layer_1 = tf.keras.layers.Dense(units=3, activation='sigmoid')
+```
+
+<Info>
+**Dense** is the term for the standard neural network layers you've learned about. As you advance, you'll encounter other layer types, but dense layers are fundamental.
+</Info>
+
+
+
+### Compute Layer 1 Activations
+
+```python
+# Apply layer 1 to input
+a1 = layer_1(x)
+# a1 might be: [0.2, 0.7, 0.3]
+```
+
+
+
+### Create and Compute Layer 2
+
+```python
+# Create second layer with 1 unit and sigmoid activation
+layer_2 = tf.keras.layers.Dense(units=1, activation='sigmoid')
+
+# Apply layer 2 to layer 1 output
+a2 = layer_2(a1)
+# a2 might be: 0.8
+```
+
+
+
+### Make Binary Prediction
+
+```python
+# Threshold at 0.5
+if a2 >= 0.5:
+    y_hat = 1  # Good coffee
+else:
+    y_hat = 0  # Bad coffee
+```
+
+
+
+</Steps>
+
+<Tip>
+In practice, you'll also need to load the TensorFlow library and load pre-trained parameters `w` and `b`. These details are covered in the accompanying notebooks.
+</Tip>
+
+## Handwritten Digit Classification
+
+Let's apply the same concepts to a more complex example: recognizing handwritten digits.
+
+### Network Architecture
+
+```python
+# Input: pixel intensity values
+x = np.array([pixel_intensities])
+
+# Layer 1: 25 units
+layer_1 = tf.keras.layers.Dense(units=25, activation='sigmoid')
+a1 = layer_1(x)
+
+# Layer 2: 15 units
+layer_2 = tf.keras.layers.Dense(units=15, activation='sigmoid')
+a2 = layer_2(a1)
+
+# Layer 3: 1 unit (output)
+layer_3 = tf.keras.layers.Dense(units=1, activation='sigmoid')
+a3 = layer_3(a2)
+
+# Optional: threshold for binary prediction
+if a3 >= 0.5:
+    y_hat = 1
+else:
+    y_hat = 0
+```
+
+
+
+## Building Neural Networks with Sequential
+
+TensorFlow provides a more elegant way to build neural networks using the Sequential API.
+
+### The Sequential Model
+
+Instead of manually passing data through each layer, you can tell TensorFlow to string layers together:
+
+```python
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense
+
+# Create layer objects
+layer_1 = Dense(units=3, activation='sigmoid')
+layer_2 = Dense(units=1, activation='sigmoid')
+
+# String them together
+model = Sequential([layer_1, layer_2])
+```
+
+
+
+<Info>
+The Sequential API tells TensorFlow to create a neural network by sequentially connecting layers. TensorFlow handles the data flow automatically.
+</Info>
+
+### Training Data Format
+
+For the coffee roasting example:
+
+```python
+# Input features (temperature, duration)
+X = np.array([
+    [200, 17],
+    [185, 15],
+    [190, 20],
+    [205, 18]
+])
+
+# Labels (1 = good coffee, 0 = bad coffee)
+Y = np.array([1, 0, 0, 1])
+```
+
+
+
+### Complete Training Workflow
+
+<Steps>
+
+### Step 1: Compile the Model
+
+```python
+model.compile(
+    loss='binary_crossentropy',
+    optimizer='adam'
+)
+```
+
+
+
+### Step 2: Fit the Model
+
+```python
+model.fit(X, Y, epochs=100)
+```
+
+This tells TensorFlow to train the model on your dataset.
+
+### Step 3: Make Predictions
+
+```python
+# New example
+X_new = np.array([[195, 16]])
+
+# Predict
+prediction = model.predict(X_new)
+```
+
+
+
+</Steps>
+
+<Tip>
+The `model.predict()` function automatically performs forward propagation through all layers, so you don't need to compute each layer manually.
+</Tip>
+
+## Idiomatic TensorFlow Code
+
+By convention, TensorFlow code doesn't explicitly assign layers to variables. Here's the more common style:
+
+```python
+# Idiomatic TensorFlow style
+model = Sequential([
+    Dense(units=3, activation='sigmoid'),
+    Dense(units=1, activation='sigmoid')
+])
+
+model.compile(loss='binary_crossentropy')
+model.fit(X, Y)
+predictions = model.predict(X_new)
+```
+
+
+
+## Digit Classification Complete Example
+
+```python
+# Build model
+model = Sequential([
+    Dense(units=25, activation='sigmoid'),  # Layer 1
+    Dense(units=15, activation='sigmoid'),  # Layer 2
+    Dense(units=1, activation='sigmoid')    # Output layer
+])
+
+# Compile
+model.compile(loss='binary_crossentropy')
+
+# Train
+model.fit(X, Y)
+
+# Predict
+predictions = model.predict(X_new)
+```
+
+
+
+## Key TensorFlow Concepts
+
+<CardGroup cols={2}>
+
+<Card title="Dense Layers" icon="layer-group">
+  Standard fully-connected neural network layers
+</Card>
+
+<Card title="Sequential API" icon="list">
+  Easily stack layers to create neural networks
+</Card>
+
+<Card title="Compile Step" icon="gear">
+  Specify loss function and optimizer
+</Card>
+
+<Card title="Fit Method" icon="chart-line">
+  Train the model on your dataset
+</Card>
+
+<Card title="Predict Method" icon="wand-magic-sparkles">
+  Make predictions on new data
+</Card>
+
+<Card title="Activation Functions" icon="wave-square">
+  Transform outputs (sigmoid, relu, etc.)
+</Card>
+
+</CardGroup>
+
+## Understanding What TensorFlow Does
+
+<Note>
+While TensorFlow makes it easy to build neural networks in just a few lines of code, it's important to understand what's happening under the hood. This knowledge helps you debug issues and optimize performance.
+</Note>
+
+### Why Understanding Matters
+
+<Tabs>
+  <Tab title="Debugging">
+    When something doesn't work (which is common), understanding the internals helps you identify and fix issues quickly.
+  </Tab>
+  <Tab title="Optimization">
+    Knowledge of underlying operations helps you make informed decisions about architecture and hyperparameters.
+  </Tab>
+  <Tab title="Performance">
+    Understanding how TensorFlow processes data helps you write more efficient code.
+  </Tab>
+</Tabs>
+
+## Data Handling in TensorFlow
+
+<Info>
+TensorFlow handles data in a specific format using NumPy arrays and tensors. Understanding this format is crucial for building effective models.
+</Info>
+
+Important considerations:
+- Input data should be NumPy arrays or TensorFlow tensors
+- Shape matters: ensure your data dimensions match layer expectations
+- TensorFlow processes data in batches for efficiency
+
+## Next Steps
+
+Now that you understand TensorFlow implementation:
+
+1. Explore [Vectorization](./vectorization) to understand efficient implementations
+2. Learn about [Neural Network Training](./neural-network-training) in depth
+3. Practice with the accompanying notebooks to solidify your understanding
+
+<Tip>
+Even experienced machine learning engineers often have code that doesn't work on the first try. The ability to debug and understand what's happening under the hood is what makes you effective.
+</Tip>

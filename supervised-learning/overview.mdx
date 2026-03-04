@@ -1,0 +1,121 @@
+---
+title: Introduction to Supervised Learning
+description: Learn about supervised machine learning algorithms that learn x to y or input to output mappings, including regression and classification.
+---
+
+## What is Supervised Learning
+
+Machine learning is creating tremendous economic value today. I think 99 percent of the economic value created by machine learning today is through one type of machine learning, which is called **supervised learning**.
+
+<Info>
+Supervised machine learning refers to algorithms that learn x to y or input to output mappings. The key characteristic of supervised learning is that you give your learning algorithm examples to learn from, including the right answers.
+</Info>
+
+By seeing correct pairs of input x and desired output label y, the learning algorithm eventually learns to take just the input alone without the output label and gives a reasonably accurate prediction or guess of the output.
+
+## Real-World Examples
+
+Supervised learning powers many applications you use every day:
+
+<Accordion title="Email Spam Detection">
+If the input x is an email and the output y is "spam" or "not spam", this gives you your spam filter. Nearly every email service uses machine learning to filter spam effectively.
+</Accordion>
+
+<Accordion title="Speech Recognition">
+If the input is an audio clip and the algorithm's job is to output the text transcript, then this is speech recognition. This technology powers voice assistants and transcription services.
+</Accordion>
+
+<Accordion title="Online Advertising">
+The most lucrative form of supervised learning today is probably used in online advertising. Large online ad platforms use learning algorithms that input information about an ad and information about you, then predict if you will click on that ad. Every click generates revenue for these companies.
+</Accordion>
+
+<Accordion title="Self-Driving Cars">
+For autonomous vehicles, the learning algorithm takes as input an image and information from sensors like radar, then outputs the position of other cars so your self-driving car can safely navigate around them.
+</Accordion>
+
+## Types of Supervised Learning
+
+There are two main types of supervised learning algorithms:
+
+<Card title="Regression" icon="chart-line">
+Regression algorithms predict numbers from infinitely many possible values. Examples include predicting housing prices ($150,000 or $183,000) or temperature values.
+</Card>
+
+<Card title="Classification" icon="grid">
+Classification algorithms predict categories from a small finite set of possible outputs. Examples include determining if an email is spam/not spam, or if a tumor is malignant/benign.
+</Card>
+
+## Regression vs Classification
+
+### Regression Algorithm
+
+Let's look at predicting housing prices based on house size. You collect data and plot it:
+
+- **Horizontal axis**: Size of house in square feet
+- **Vertical axis**: Price in thousands of dollars
+
+With this data, a learning algorithm can fit a straight line or curve to predict prices. For example, a 750 square foot house might be predicted to sell for $150,000 with a linear model, or $200,000 with a curved model.
+
+<Note>
+Regression problems involve predicting a number from infinitely many possible numbers, such as house prices which could be any value like 150,000, 183,000, or any number in between.
+</Note>
+
+### Classification Algorithm
+
+Classification predicts categories rather than continuous numbers. Consider breast cancer detection:
+
+- **Malignant** (cancerous): Class 1 or positive class
+- **Benign** (not cancerous): Class 0 or negative class
+
+You can plot tumor size on the horizontal axis and the class (0 or 1) on the vertical axis. The algorithm learns to classify new tumors based on their features.
+
+<Tip>
+Classification problems can use multiple input features. For breast cancer detection, you might use tumor size, patient age, thickness of tumor clump, uniformity of cell size, and uniformity of cell shape to improve prediction accuracy.
+</Tip>
+
+### Binary Classification
+
+When there are only two possible outputs, this is called **binary classification**:
+
+- **Negative class** (0, false, no): Represents absence of the property
+- **Positive class** (1, true, yes): Represents presence of the property
+
+Examples:
+- Email: not spam (0) or spam (1)
+- Transaction: legitimate (0) or fraudulent (1)
+- Tumor: benign (0) or malignant (1)
+
+## Key Concepts
+
+<Steps>
+  <Step title="Training with Examples">
+    First, train your model with examples of inputs x and the correct answers (labels y).
+  </Step>
+  
+  <Step title="Learning Patterns">
+    The model learns from these input-output pairs to identify patterns and relationships.
+  </Step>
+  
+  <Step title="Making Predictions">
+    After training, the model can take a brand new input x that it has never seen before and produce an appropriate output y.
+  </Step>
+</Steps>
+
+## Conclusion
+
+The two major types of supervised learning are **regression** and **classification**:
+
+- **Regression**: Predicts numbers from infinitely many possible output numbers (e.g., house prices)
+- **Classification**: Makes predictions of a category from a small set of possible outputs (e.g., spam detection)
+
+Understanding these fundamental concepts is essential as you explore more advanced supervised learning techniques in the following sections.
+
+## What's Next
+
+Now that you understand supervised learning fundamentals, you're ready to dive deeper into specific algorithms and techniques:
+
+- Learn about regression models and how to fit them to data
+- Understand gradient descent for optimizing model parameters
+- Explore multiple linear regression with many features
+- Study logistic regression for classification problems
+- Address overfitting to improve model performance

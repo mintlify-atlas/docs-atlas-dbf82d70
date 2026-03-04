@@ -1,0 +1,385 @@
+---
+title: Data Visualization and Summary Statistics
+description: Learn to create insightful visualizations and compute meaningful statistics using real-world transportation data.
+---
+
+This guide continues the exploratory data analysis (EDA) series, focusing on visualization techniques and statistical analysis using rideshare data from Chicago.
+
+## Introduction
+
+You'll work with rideshare data from Chicago in 2022, available from the [City of Chicago Data Portal](https://data.cityofchicago.org/Transportation/Transportation-Network-Providers-Trips/m6dm-c72p/data). This is a cleaned and reduced version of the full dataset, ready for analysis.
+
+### Learning Objectives
+
+<CardGroup cols={2}>
+  <Card title="Probability" icon="dice">
+    Apply probability concepts to real-world transportation data.
+  </Card>
+  
+  <Card title="Descriptive Statistics" icon="calculator">
+    Compute and interpret mean, median, standard deviation, and quartiles.
+  </Card>
+  
+  <Card title="Visualization" icon="chart-column">
+    Create box plots, scatter plots, and geographic visualizations.
+  </Card>
+  
+  <Card title="Correlation" icon="arrows-split-up-and-left">
+    Analyze relationships between variables using correlation coefficients.
+  </Card>
+</CardGroup>
+
+## Setup
+
+<Steps>
+  <Step title="Import Libraries">
+    ```python
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import folium
+    from folium.plugins import FastMarkerCluster
+    ```
+  </Step>
+  
+  <Step title="Load Dataset">
+    ```python
+    # Note: parse_dates automatically converts date columns
+    df = pd.read_csv(
+        "data/rideshare_2022_cleaned.csv",
+        parse_dates=['trip_start_timestamp', 'date']
+    )
+    
+    df.head()
+    ```
+  </Step>
+</Steps>
+
+## Summary Statistics
+
+The `.describe()` method provides a comprehensive statistical overview:
+
+```python
+df.describe()
+```
+
+This returns:
+- **count**: Number of observations
+- **mean**: Average value
+- **std**: Standard deviation (spread)
+- **min/max**: Range boundaries
+- **25%, 50%, 75%**: First quartile, median, third quartile
+
+<Accordion title="Questions to Ask When Reviewing Statistics">
+  1. **Range**: What are the shortest and longest trips? How far apart are min and max values?
+  2. **Central Tendency**: Is the mean closer to the minimum or maximum?
+  3. **Spread**: How much variation exists? (Check standard deviation)
+  4. **Skewness**: Compare mean vs. median. If mean > median, data is right-skewed (long tail on right)
+</Accordion>
+
+<Note>
+  Be cautious when interpreting aggregated statistics. With data from multiple years and countries, simple averages may hide important patterns.
+</Note>
+
+## Box Plots
+
+### Creating Box Plots
+
+Box plots visualize summary statistics elegantly:
+
+```python
+column_to_plot = 'fare'
+
+plt.figure()
+df.boxplot(column_to_plot)
+plt.show()
+```
+
+### Understanding Box Plot Components
+
+<Tabs>
+  <Tab title="Box Components">
+    - **Box**: Interquartile range (IQR) from Q1 to Q3
+    - **Orange line in box**: Median (Q2)
+    - **Lines extending from box**: Whiskers showing 1.5 × IQR
+  </Tab>
+  
+  <Tab title="Outliers">
+    Points beyond the whiskers are outliers - values that deviate significantly from the typical range.
+    
+    Many outliers often indicate:
+    - Heavy-tailed distributions
+    - Right-skewed data
+    - Extreme but valid observations
+  </Tab>
+</Tabs>
+
+### Comparing Distributions
+
+Visualize fare distribution to understand outliers:
+
+```python
+df.hist('fare', density=True)
+plt.show()
+```
+
+<Info>
+  The fare distribution is heavily right-skewed with a long tail. This explains why many large fares appear as "outliers" - they're rare but valid high-fare trips.
+</Info>
+
+### Grouped Box Plots
+
+Compare distributions across categories:
+
+```python
+df.boxplot(column='tip', by='weekday')
+
+# Limit y-axis for better visibility
+plt.ylim(-2, 52)
+plt.show()
+```
+
+<Accordion title="Understanding Conditional Distributions">
+  When you group by weekday, you're analyzing **conditional distributions**:
+  
+  - Tip | Monday
+  - Tip | Tuesday
+  - ... and so on
+  
+  This reveals how tipping behavior changes across days.
+</Accordion>
+
+### Analyzing Tips by Weekday
+
+Get detailed statistics:
+
+```python
+df.groupby('weekday')['tip'].describe()
+```
+
+**Key Findings:**
+- **Sunday**: Over 75% of riders don't tip (Q1, Q2, Q3 all equal 0)
+- **Other days**: Median tip is still 0, but Q3 is positive
+- **Implication**: When people don't tip, all tips become "outliers"
+
+<Tip>
+  When analyzing tips, separate tippers from non-tippers for clearer insights:
+  
+  ```python
+  df_tippers = df[df['tip'] > 0]
+  df_tippers.boxplot(column='tip', by='weekday')
+  ```
+</Tip>
+
+## Time-Based Analysis
+
+### Tips by Hour of Day
+
+Extract hour from timestamp:
+
+```python
+# Add hour column
+df["hour"] = df["trip_start_timestamp"].apply(lambda x: x.hour)
+
+# Filter to tippers only
+df_tippers = df[df['tip'] > 0]
+
+# Plot tip distribution by hour
+plt.figure()
+df_tippers.boxplot(column='tip', by='hour')
+plt.ylim(-2, 52)
+plt.show()
+
+# Calculate tipping percentage by hour
+percentage_tippers = (
+    df_tippers.groupby(["hour"])["tip"].count() / 
+    df.groupby(["hour"])["tip"].count() * 100
+)
+
+plt.figure()
+percentage_tippers.plot(marker="o", title="Percentage of Tippers")
+plt.show()
+```
+
+<Info>
+  Tips are higher in early morning hours. But is this due to time of day or other factors?
+</Info>
+
+### Trip Length by Hour
+
+Check if longer trips explain higher tips:
+
+```python
+df.boxplot(column='trip_miles', by='hour')
+plt.ylim(-10, 210)
+plt.show()
+```
+
+**Insight**: Early morning trips are longer, potentially explaining higher tips.
+
+## Correlation Analysis
+
+### Scatter Plots
+
+Visualize relationships:
+
+```python
+df_tippers.plot(kind='scatter', x='trip_miles', y='tip', marker=".")
+plt.show()
+```
+
+### Computing Correlation
+
+Quantify relationships:
+
+```python
+correlation = df_tippers['tip'].corr(df_tippers['trip_miles'])
+print(f"Correlation: {correlation:.3f}")
+```
+
+<Accordion title="Understanding Correlation Coefficients">
+  Correlation ranges from -1 to 1:
+  
+  - **1**: Perfect positive correlation
+  - **0.7**: Strong positive correlation
+  - **0.5**: Moderate positive correlation
+  - **0**: No linear correlation
+  - **-0.5**: Moderate negative correlation
+  - **-1**: Perfect negative correlation
+  
+  A correlation of 0.637 indicates moderate positive correlation between trip length and tips.
+</Accordion>
+
+<Tip>
+  Try comparing different variable pairs:
+  
+  ```python
+  # Tip vs Fare
+  df_tippers['tip'].corr(df_tippers['fare'])
+  
+  # Trip miles vs Fare
+  df_tippers['trip_miles'].corr(df_tippers['fare'])
+  ```
+</Tip>
+
+## Geographic Visualization
+
+### 2D Histogram
+
+Visualize pickup location density:
+
+```python
+# Extract coordinates
+latitude = df.dropna()["pickup_centroid_latitude"].to_numpy()
+longitude = df.dropna()["pickup_centroid_longitude"].to_numpy()
+
+# Create 2D histogram
+fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+hist = ax.hist2d(longitude, latitude, bins=50, density=True)
+ax.set_aspect(1.3, "box")
+fig.colorbar(hist[3])
+ax.set_xlabel("Longitude (degrees)")
+ax.set_ylabel("Latitude (degrees)")
+plt.show()
+```
+
+<Info>
+  This is a **joint distribution** - showing how a variable (ride frequency) is distributed across two dimensions (latitude and longitude).
+</Info>
+
+### Interactive Maps
+
+Create an interactive Folium map:
+
+```python
+def interactive_map(df, n_samples=4000):
+    points = df[["pickup_centroid_longitude", "pickup_centroid_latitude"]].dropna()[0:n_samples]
+    
+    latitude = points.iloc[0]["pickup_centroid_latitude"]
+    longitude = points.iloc[0]["pickup_centroid_longitude"]
+    
+    map3 = folium.Map(location=[latitude, longitude], zoom_start=9)
+    marker_cluster = FastMarkerCluster([]).add_to(map3)
+    
+    for index, row in points.iterrows():
+        lat = row["pickup_centroid_latitude"]
+        lon = row["pickup_centroid_longitude"]
+        folium.Marker(
+            (lat, lon),
+            icon=folium.Icon(color="green")
+        ).add_to(marker_cluster)
+    
+    return map3
+
+interactive_map(df)
+```
+
+<Note>
+  If the map doesn't render, try re-running the cell or restarting the kernel. This is a resource-intensive operation.
+</Note>
+
+### Analyzing Airport Rides
+
+Filter rides from O'Hare Airport:
+
+```python
+# Filter by coordinates
+airport_rides = df[
+    (df["pickup_centroid_longitude"] < -87.9) &
+    (df["pickup_centroid_latitude"] > 41.97) &
+    (df["pickup_centroid_latitude"] < 41.99)
+]
+
+airport_tippers = airport_rides[airport_rides['tip'] > 0]
+
+# Plot tips by hour
+plt.figure()
+airport_tippers.boxplot(column='tip', by='hour')
+plt.show()
+
+# Calculate tipping percentage
+airport_tip_pct = (
+    airport_tippers.groupby(["hour"])["tip"].count() / 
+    airport_rides.groupby(["hour"])["tip"].count() * 100
+)
+
+plt.figure()
+airport_tip_pct.plot(marker="o", title="Airport Tipping Percentage")
+plt.show()
+```
+
+<Tip>
+  Airport rides show much higher tipping rates! This is valuable information for drivers choosing where to work.
+</Tip>
+
+## Key Concepts Covered
+
+<CardGroup cols={2}>
+  <Card title="Descriptive Statistics" icon="table">
+    Mean, median, standard deviation, quartiles - the foundation of data understanding.
+  </Card>
+  
+  <Card title="Box Plots" icon="chart-simple">
+    Visualize distribution, identify outliers, compare groups.
+  </Card>
+  
+  <Card title="Joint Distribution" icon="border-all">
+    2D histograms and maps show how variables relate spatially.
+  </Card>
+  
+  <Card title="Marginal Distribution" icon="chart-bar">
+    Distributions of individual variables within subgroups.
+  </Card>
+  
+  <Card title="Correlation" icon="arrow-trend-up">
+    Quantify linear relationships between variables.
+  </Card>
+  
+  <Card title="Conditional Analysis" icon="filter">
+    Understand how distributions change across categories.
+  </Card>
+</CardGroup>
+
+<Note>
+  This practical exercise demonstrates why visualization is essential. Summary statistics alone can't reveal patterns like geographic clustering or time-based trends.
+</Note>
